@@ -91,15 +91,6 @@ func PGAnonymity(c *gin.Context) {
 	})
 }
 
-// 登录到匿名房间
-func LoginAnonymity(c *gin.Context) {
-
-	manCount := obj.GetAnonymityRoomCount()
-	c.HTML(http.StatusOK, "login_anonymity.html", gin.H{
-		"man_count": manCount,
-	})
-}
-
 // 指定房间聊天
 func LoginRoom(c *gin.Context) {
 	//获取所有房间
@@ -164,12 +155,6 @@ func PGRoom(c *gin.Context) {
 		"user_name": user,
 		"room_name": room_name,
 	})
-}
-
-// 一对一聊天
-func LoginOnebyone(c *gin.Context) {
-
-	c.HTML(http.StatusOK, "login_onebyone.html", gin.H{})
 }
 
 // 一对一聊天

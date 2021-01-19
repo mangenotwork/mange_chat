@@ -15,5 +15,5 @@ func PGRouter() {
 	//Router.GET("/login/room", handler.LoginRoom)           // 指定房间聊天
 	Router.GET("/room", handler.PGRoom) // 指定聊天室
 	//Router.GET("/login/onebyone", handler.LoginOnebyone)   // 一对一聊天
-	Router.GET("/onebyone", handler.PGOnebyone) //
+	Router.GET("/onebyone", handler.PGOnebyone) //一对一聊天
 }
