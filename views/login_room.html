@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
+</head>
+<body>
+  <h3>创建账号</h3>
+  <input type="text" id="name">
+  <h1><a onclick="Login()">创建</a></h1>
+  <hr>
+	<h3>当前房间</h3>
+  
+  <ul>
+    {{range $index, $elem := .allroom}}
+       <li>{{$index}}, {{$elem}}<br><a onclick="InToRoom({{$index}})">进入房间</a></li>
+    {{end}}
+  </ul>
+  
+  <hr>
+  <h3>创建房间</h3>
+  <input type="text" id="room_name">
+  <h1><a onclick="CreateRoom()">创建</a></h1>
+  <hr>
+  
+  当前登录账号: {{.user_name}}
+  
+</body>
+
+<script type="text/javascript">
+
+  function Login(){
+    var name = $("#name").val();
+    if (name === "") {
+      name = "{{.user_name}}";
+    }
+    if (name != "") {
+        window.location.href="/login/room?type=login&user_name="+name;
+    }else{
+      alert("请输入一个昵称");
+    }
+  }
+  
+  function CreateRoom(){
+     var room_name = $("#room_name").val();
+    if (room_name != "") {
+        window.location.href="/login/room?type=createroom&user_name={{.user_name}}&room_name="+room_name;
+    }else{
+      alert("请输入一个房间名称");
+    }
+  }
+  
+  function InToRoom(room_name){
+    var user_name = "{{.user_name}}";
+    if (user_name != ""){
+       window.location.href= "/room?room_name="+room_name+"&user_name="+user_name;
+    }else{
+       alert("请输入一个昵称");
+    }
+   
+  }
+  
+</script>
+
+</html>

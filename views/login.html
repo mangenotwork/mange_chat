@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
+</head>
+<body>
+	<h3>输入一个昵称登录到 ManGe Chat </h3>
+  <input type="text" id="name">
+  <h1><a onclick="Login()">进入</a> </h1>
+</body>
+<script type="text/javascript">
+  function Login(){
+      var name = $("#name").val();
+      if (name != "") {
+         window.location.href="/login/"+name;
+	  }else{
+	      alert("请输入一个昵称");
+	  }
+  }
+  
+</script>
+</html>

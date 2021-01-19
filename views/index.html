@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
+</head>
+<body>
+
+<h1> mange webChat </h1>
+
+<h3>User : {{.user}}</h3>
+
+
+
+<ul>
+<li><a href="/anonymity" target="_blank">匿名聊天室</a></li>
+<li><input type="text" id="room_name"> <button onclick="CreateRoom()">创建群聊房间</button></li>
+
+</ul>
+
+<hr>
+
+<h3>当前聊天室</h3>
+<div id="roomlist"> </div>
+<hr>
+
+<h3>当前聊天用户</h3>
+<div id="userlist">
+	{{range .user_list}}
+		{{.Name}} {{.Online}} <br>
+	{{end}}
+
+</div>
+<hr>
+
+<h3>我的消息</h3>
+<div id="msglist">
+</div>
+<hr>
+
+<button id="a">这是一个发送消息的测试按钮</button>
+
+
+<script type="text/javascript">
+
+
+window.onload = function () {
+    var conn;
+    // var msg = document.getElementById("msg");
+    // var log = document.getElementById("log");
+  
+    // function appendLog(item) {
+    //     var doScroll = log.scrollTop > log.scrollHeight - log.clientHeight - 1;
+    //     log.appendChild(item);
+    //     if (doScroll) {
+    //         log.scrollTop = log.scrollHeight - log.clientHeight;
+    //     }
+    // }
+
+    $("#a").click(function () {
+        if (!conn) {
+            return false;
+        }
+        conn.send("asdasdsadsad");
+        return false;
+    });
+    
+
+    if (window["WebSocket"]) {
+        var name = "{{.user}}";
+        conn = new WebSocket("ws://" + document.location.host + "/ws/index?name="+name);
+
+        conn.onclose = function (evt) {
+            //alert("连接断开");
+            console.log("连接断开");
+        };
+        conn.onmessage = function (evt) {
+            var messages = evt.data.split('\n');
+            console.log(messages[0]);
+            var str = messages[0];
+            console.log(typeof(str));
+            var obj = JSON.parse(str);
+            console.log(typeof(obj));
+            console.log(obj);
+
+            //当前聊天用户
+            var user_list_data = obj["user_list"];
+            console.log(user_list_data);
+            var user_div = $("#userlist");
+            user_div.empty();
+            for (var i = 0; i < user_list_data.length; i ++) {
+                if (name === user_list_data[i]["user_name"]){
+                    continue;
+                }
+                user_div.append('用户名 : '+user_list_data[i]["user_name"]+' | 是否在线 : '+user_list_data[i]["online"]+
+                    ' | <a href="/onebyone?you_name='+user_list_data[i]["user_name"]+'" target="_blank">一对一聊天</a><br>');
+            }
+
+            //当前聊天室
+            var room_list_data = obj["room_list"];
+            console.log(room_list_data);
+            var room_div = $("#roomlist");
+            room_div.empty();
+            for (var i = 0; i < room_list_data.length; i ++) {
+                room_div.append('群聊名 : '+room_list_data[i]["room_name"]+
+                    ' <a href="/room?room_name='+room_list_data[i]["room_name"]+
+                    '" target="_blank">进入房间</a> <br>');
+            }
+
+
+        };
+    } else {
+    	alert("Your browser does not support WebSockets.");
+    }
+
+};
+
+
+function CreateRoom(){
+	var room_name = $("#room_name").val();
+	if (room_name === "") {
+		alert("room name is null.")
+		return
+	}
+	$.ajax({
+		type : "GET",
+		url : "/create/room?room_name="+room_name,
+		success : function(result) {//返回数据根据结果进行相应的处理 
+	    	console.log(result);
+	    } 
+	});
+}
+
+</script>
+</body>
+</html>
