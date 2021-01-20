@@ -3,13 +3,19 @@
 <head>
 <title>ManGe Chat - 指定房间聊天</title>
 <script type="text/javascript">
+
+
+
 window.onload = function () {
     var conn;
-    var msg = document.getElementById("msg");
-    var log = document.getElementById("log");
+    
     var myname = "{{.my_name}}";
     var youname = "{{.you_name}}";
-  
+
+
+    var msg = document.getElementById("msg");
+    var log = document.getElementById("log");
+
     function appendLog(item) {
         var doScroll = log.scrollTop > log.scrollHeight - log.clientHeight - 1;
         log.appendChild(item);
@@ -17,6 +23,9 @@ window.onload = function () {
             log.scrollTop = log.scrollHeight - log.clientHeight;
         }
     }
+    
+
+    
 
     document.getElementById("form").onsubmit = function () {
         if (!conn) {
@@ -32,7 +41,7 @@ window.onload = function () {
     
     if (window["WebSocket"]) {
         var room = "{{.room_name}}";
-        conn = new WebSocket("ws://" + document.location.host + "/ws/onebyone?room="+room+"&myname="+myname);
+        conn = new WebSocket("ws://" + document.location.host + "/ws/onebyone?room="+room+"&myname="+myname+"&youname="+youname);
         conn.onclose = function (evt) {
             var item = document.createElement("div");
             item.innerHTML = "<b>Connection closed. 连接断开</b>";
@@ -97,10 +106,13 @@ body {
 <h3>对方用户: {{.you_name}} </h3>
 
 
-<div id="log"></div>
+
+
+<div id="log">历史消息: {{.history_msg}}</div>
 <form id="form">
     <input type="submit" value="Send" />
     <input type="text" id="msg" size="64"/>
 </form>
+
 </body>
 </html>

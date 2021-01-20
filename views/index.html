@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
+<script src="https://cdn.bootcss.com/jquery/1.11.0/jquery.min.js"></script>
 </head>
 <body>
 
@@ -92,6 +92,7 @@ window.onload = function () {
                     continue;
                 }
                 user_div.append('用户名 : '+user_list_data[i]["user_name"]+' | 是否在线 : '+user_list_data[i]["online"]+
+                    ' | 未读消息 = '+user_list_data[i]["unmsg"]+
                     ' | <a href="/onebyone?you_name='+user_list_data[i]["user_name"]+'" target="_blank">一对一聊天</a><br>');
             }
 

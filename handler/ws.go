@@ -143,7 +143,10 @@ func WSOnebyone(c *gin.Context) {
 	userName := c.Query("myname")
 	log.Println("myname = ", userName)
 
-	if roomName == "" || userName == "" {
+	youName := c.Query("youname")
+	log.Println("youName = ", youName)
+
+	if roomName == "" || userName == "" || youName == "" {
 		log.Println("房间或用户为空")
 		return
 	}
@@ -152,6 +155,7 @@ func WSOnebyone(c *gin.Context) {
 	u := &obj.UserC{
 		Token: RandChar(10),
 		Name:  userName,
+		You:   youName,
 	}
 
 	// 建立websocket连接

@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"sort"
 
+	"github.com/mangenotwork/mange_chat/dao"
+
 	"github.com/gin-gonic/gin"
 	"github.com/mangenotwork/mange_chat/obj"
 )
@@ -189,10 +191,14 @@ func PGOnebyone(c *gin.Context) {
 
 	log.Println("room_name = ", room_name)
 
+	//获取历史聊天记录
+	historyMsg := new(dao.DaoMsg).Get(room_name)
+
 	c.HTML(http.StatusOK, "onebyone.html", gin.H{
-		"my_name":   my_name,
-		"you_name":  you_name,
-		"room_name": room_name,
+		"my_name":     my_name,
+		"you_name":    you_name,
+		"room_name":   room_name,
+		"history_msg": historyMsg,
 	})
 }
 

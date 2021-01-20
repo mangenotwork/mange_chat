@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
+	"github.com/mangenotwork/mange_chat/dao"
 	"github.com/mangenotwork/mange_chat/obj"
 )
 
@@ -338,8 +339,18 @@ func OnebyoneRoomReadPump(c *obj.UserC) {
 			log.Println("序列化失败,error=", err)
 		}
 
+		log.Println("data = ", string(data))
+		new(dao.DaoMsg).Save(c.RoomName, string(data))
+
+		//未读消息到未读表
+		if mesgState == "未读" {
+			//你来自我的未读
+			new(dao.DaoMsg).SaveUnreadMsg(c.You, c.Name)
+		}
+
 		//广播到每个client
 		for client, _ := range room.AllUser {
+
 			select {
 			case client.Send <- data:
 			default:
@@ -461,6 +472,7 @@ func LobbyReadPump(c *obj.User) {
 type UserInfo struct {
 	Name   string `json:"user_name"`
 	Online bool   `json:"online"`
+	UnMsg  string `json:"unmsg"` //未读消息数
 }
 
 func LobbyReadPump2(c *obj.User) {
@@ -468,23 +480,7 @@ func LobbyReadPump2(c *obj.User) {
 		select {
 		case message := <-c.Cmd:
 
-			userList := make([]*UserInfo, 0)
 			roomList := make([]*RoomInfo, 0)
-
-			//获取当前用户列表
-			for k, v := range obj.AllUser {
-				online := false
-				if v.Conn != nil {
-					online = true
-				}
-				userList = append(userList, &UserInfo{
-					Name:   k,
-					Online: online,
-				})
-			}
-
-			userlist, err := json.Marshal(&userList)
-			log.Println("userlist = ", string(userlist))
 
 			//获取当前房间列表
 			for k, _ := range obj.AllRoom {
@@ -495,18 +491,11 @@ func LobbyReadPump2(c *obj.User) {
 
 			// 消息内容
 			m := &LobbyMsg{
+				Code:     1,
 				Name:     c.Name,
-				UserList: userList,
 				RoomList: roomList,
 			}
 			log.Println("write message : ", string(message), m)
-
-			//序列化
-			data, err := json.Marshal(&m)
-			if err != nil {
-				log.Println("序列化失败,error=", err)
-			}
-
 			log.Println(obj.Lobby)
 
 			//广播到每个client
@@ -514,6 +503,40 @@ func LobbyReadPump2(c *obj.User) {
 
 				if client.Send == nil {
 					continue
+				}
+
+				//每个人的信息不一样
+				m2 := m
+				m2.Msg = client.Name
+				userList := make([]*UserInfo, 0)
+
+				//获取每个人的未读消息
+				unMsgMap := new(dao.DaoMsg).GetUnreadMsg(client.Name)
+
+				//获取当前用户列表
+				for k, v := range obj.AllUser {
+					online := false
+					if v.Conn != nil {
+						online = true
+					}
+					userList = append(userList, &UserInfo{
+						Name:   k,
+						Online: online,
+						UnMsg:  unMsgMap[k],
+					})
+				}
+				userlist, err := json.Marshal(&userList)
+				if err != nil {
+					log.Println("序列化失败,error=", err)
+				}
+				log.Println("userlist = ", string(userlist))
+
+				m2.UserList = userList
+
+				data, err := json.Marshal(&m2)
+
+				if err != nil {
+					log.Println("序列化失败,error=", err)
 				}
 
 				select {
@@ -535,9 +558,11 @@ type RoomInfo struct {
 
 // 大厅数据结构
 type LobbyMsg struct {
+	Code     int         `json:"code"`
 	Name     string      `json:"my_name"`
 	UserList []*UserInfo `json:"user_list"` // 当前用户列表
 	RoomList []*RoomInfo `json:"room_list"` // 当前房间列表
+	Msg      string      `json:"msg"`       //其他信息
 }
 
 //
