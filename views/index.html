@@ -1,60 +1,115 @@
-<!DOCTYPE html>
-<html>
-<head>
+<html class="pixel-ratio-1"><head>
+
+<title>ManGe Chat</title>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<meta name="description" content="Write an awesome description for your new site here. You can edit this line in _config.yml. It will appear in your document head meta (for Google search results) and in your feed.xml site description.
+">
+<link rel="stylesheet" href="https://cdn.bootcss.com/weui/1.1.3/style/weui.min.css">
+<link rel="stylesheet" href="https://cdn.bootcss.com/jquery-weui/1.2.1/css/jquery-weui.min.css">
+
+<!-- body 最后 -->
 <script src="https://cdn.bootcss.com/jquery/1.11.0/jquery.min.js"></script>
+<script src="https://cdn.bootcss.com/jquery-weui/1.2.1/js/jquery-weui.min.js"></script>
+<!-- 如果使用了某些拓展插件还需要额外的JS -->
+<script src="https://cdn.bootcss.com/jquery-weui/1.2.1/js/swiper.min.js"></script>
+<script src="https://cdn.bootcss.com/jquery-weui/1.2.1/js/city-picker.min.js"></script>
+
 </head>
-<body>
 
-<h1> mange webChat </h1>
+<body ontouchstart="">
 
-<h3>User : {{.user}}</h3>
+    <div class="weui-tab">
+
+        <!-- 容器 -->
+        <div class="weui-tab">
+              <div class="weui-tab__bd">
+                <div id="tab1" class="weui-tab__bd-item weui-tab__bd-item--active">
+                  <h1>页面一</h1>
+
+                  <h1> mange webChat </h1>
+
+                    <h3>User : {{.user}}</h3>
 
 
 
-<ul>
-<li><a href="/anonymity" target="_blank">匿名聊天室</a></li>
-<li><input type="text" id="room_name"> <button onclick="CreateRoom()">创建群聊房间</button></li>
+                    <ul>
+                    <li><a href="/anonymity" target="_blank">匿名聊天室</a></li>
+                    <li><input type="text" id="room_name"> <button onclick="CreateRoom()">创建群聊房间</button></li>
 
-</ul>
+                    </ul>
 
-<hr>
+                    <hr>
 
-<h3>当前聊天室</h3>
-<div id="roomlist"> </div>
-<hr>
+                    <h3>当前聊天室</h3>
+                    <div id="roomlist"> </div>
+                    <hr>
 
-<h3>当前聊天用户</h3>
-<div id="userlist">
-	{{range .user_list}}
-		{{.Name}} {{.Online}} <br>
-	{{end}}
+                    <h3>当前聊天用户</h3>
+                    <div id="userlist">
+                        {{range .user_list}}
+                            {{.Name}} {{.Online}} <br>
+                        {{end}}
+
+                    </div>
+                    <hr>
+
+                    <h3>我的消息</h3>
+                    <div id="msglist">
+                    </div>
+                    <hr>
+
+                    <button id="a">这是一个发送消息的测试按钮</button>
+
+                </div>
+                <div id="tab2" class="weui-tab__bd-item">
+                  <h1>页面二</h1>
+                </div>
+                <div id="tab3" class="weui-tab__bd-item">
+                  <h1>页面三</h1>
+                </div>
+                <div id="tab4" class="weui-tab__bd-item">
+                  <h1>页面四</h1>
+                </div>
+              </div>
+
+              <div class="weui-tabbar">
+                <a href="#tab1" class="weui-tabbar__item weui-bar__item--on">
+                  <span class="weui-badge" style="position: absolute;top: -.4em;right: 1em;">8</span>
+                  <div class="weui-tabbar__icon">
+                    <img src="https://jqweui.cn/dist/demos/images/icon_nav_button.png" alt="">
+                  </div>
+                  <p class="weui-tabbar__label">聊天</p>
+                </a>
+                <a href="#tab2" class="weui-tabbar__item">
+                  <div class="weui-tabbar__icon">
+                    <img src="https://jqweui.cn/dist/demos/images/icon_nav_button.png" alt="">
+                  </div>
+                  <p class="weui-tabbar__label">通讯录</p>
+                </a>
+                <a href="#tab3" class="weui-tabbar__item">
+                  <div class="weui-tabbar__icon">
+                    <img src="https://jqweui.cn/dist/demos/images/icon_nav_button.png" alt="">
+                  </div>
+                  <p class="weui-tabbar__label">发现</p>
+                </a>
+                <a href="#tab4" class="weui-tabbar__item">
+                  <div class="weui-tabbar__icon">
+                    <img src="https://jqweui.cn/dist/demos/images/icon_nav_button.png" alt="">
+                  </div>
+                  <p class="weui-tabbar__label">我</p>
+                </a>
+              </div>
+        </div>
 
 </div>
-<hr>
-
-<h3>我的消息</h3>
-<div id="msglist">
-</div>
-<hr>
-
-<button id="a">这是一个发送消息的测试按钮</button>
-
 
 <script type="text/javascript">
 
 
 window.onload = function () {
     var conn;
-    // var msg = document.getElementById("msg");
-    // var log = document.getElementById("log");
-  
-    // function appendLog(item) {
-    //     var doScroll = log.scrollTop > log.scrollHeight - log.clientHeight - 1;
-    //     log.appendChild(item);
-    //     if (doScroll) {
-    //         log.scrollTop = log.scrollHeight - log.clientHeight;
-    //     }
-    // }
 
     $("#a").click(function () {
         if (!conn) {
