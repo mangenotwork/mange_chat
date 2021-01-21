@@ -1,13 +1,11 @@
 package handler
 
 import (
-	"bytes"
 	"log"
-	"math/rand"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/mangenotwork/mange_chat/cilent"
+	"github.com/mangenotwork/mange_chat/common/utils"
 	"github.com/mangenotwork/mange_chat/obj"
 )
 
@@ -97,7 +95,7 @@ func WSRoom(c *gin.Context) {
 
 	//用户连接
 	u := &obj.UserC{
-		Token: RandChar(10),
+		Token: utils.RandChar(10),
 		Name:  userName,
 	}
 
@@ -124,17 +122,6 @@ func WSRoom(c *gin.Context) {
 	go cilent.RoomReadPump(u)
 }
 
-const char = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-
-func RandChar(size int) string {
-	rand.NewSource(time.Now().UnixNano()) // 产生随机种子
-	var s bytes.Buffer
-	for i := 0; i < size; i++ {
-		s.WriteByte(char[rand.Int63()%int64(len(char))])
-	}
-	return s.String()
-}
-
 //一对一聊天
 func WSOnebyone(c *gin.Context) {
 	roomName := c.Query("room")
@@ -153,7 +140,7 @@ func WSOnebyone(c *gin.Context) {
 
 	//用户连接
 	u := &obj.UserC{
-		Token: RandChar(10),
+		Token: utils.RandChar(10),
 		Name:  userName,
 		You:   youName,
 	}

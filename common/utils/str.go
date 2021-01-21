@@ -1,7 +1,10 @@
 package utils
 
 import (
+	"bytes"
+	"math/rand"
 	"strconv"
+	"time"
 )
 
 // string to int
@@ -30,4 +33,16 @@ func Int2Str(i int) string {
 // int64 to string
 func Int642Str(i int64) string {
 	return strconv.FormatInt(i, 10)
+}
+
+//随机字符
+const char = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+
+func RandChar(size int) string {
+	rand.NewSource(time.Now().UnixNano()) // 产生随机种子
+	var s bytes.Buffer
+	for i := 0; i < size; i++ {
+		s.WriteByte(char[rand.Int63()%int64(len(char))])
+	}
+	return s.String()
 }

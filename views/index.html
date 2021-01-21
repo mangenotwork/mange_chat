@@ -1,22 +1,4 @@
-<html class="pixel-ratio-1"><head>
-
-<title>ManGe Chat</title>
-<meta charset="utf-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-<meta name="description" content="Write an awesome description for your new site here. You can edit this line in _config.yml. It will appear in your document head meta (for Google search results) and in your feed.xml site description.
-">
-<link rel="stylesheet" href="https://cdn.bootcss.com/weui/1.1.3/style/weui.min.css">
-<link rel="stylesheet" href="https://cdn.bootcss.com/jquery-weui/1.2.1/css/jquery-weui.min.css">
-
-<!-- body 最后 -->
-<script src="https://cdn.bootcss.com/jquery/1.11.0/jquery.min.js"></script>
-<script src="https://cdn.bootcss.com/jquery-weui/1.2.1/js/jquery-weui.min.js"></script>
-<!-- 如果使用了某些拓展插件还需要额外的JS -->
-<script src="https://cdn.bootcss.com/jquery-weui/1.2.1/js/swiper.min.js"></script>
-<script src="https://cdn.bootcss.com/jquery-weui/1.2.1/js/city-picker.min.js"></script>
-
-</head>
+{{template "_head.html" .}}
 
 <body ontouchstart="">
 
@@ -27,7 +9,7 @@
               <div class="weui-tab__bd">
                 <div id="tab1" class="weui-tab__bd-item weui-tab__bd-item--active">
 
-                    <div class="weui-search-bar" id="searchBar">
+                    <div class="weui-search-bar" id="searchBar" style="height:50px;">
                       <form class="weui-search-bar__form">
                         <div class="weui-search-bar__box">
                           <i class="weui-icon-search"></i>
@@ -41,7 +23,6 @@
                       </form>
                       <a href="javascript:" class="weui-search-bar__cancel-btn" id="searchCancel">取消</a>
                     </div>
-
                     <div class="weui-panel__bd" id="userlist"></div>
                     
 
@@ -164,16 +145,13 @@ window.onload = function () {
                 if (name === user_list_data[i]["user_name"]){
                     continue;
                 }
-                // user_div.append('用户名 : '+user_list_data[i]["user_name"]+' | 是否在线 : '+user_list_data[i]["online"]+
-                //     ' | 未读消息 = '+user_list_data[i]["unmsg"]+
-                //     ' | <a href="/onebyone?you_name='+user_list_data[i]["user_name"]+'" target="_blank">一对一聊天</a><br>');
-                console.log(user_list_data[i]["user_name"], user_list_data[i]["online"], user_list_data[i]["unmsg"]);
+                //console.log(user_list_data[i]["user_name"], user_list_data[i]["online"], user_list_data[i]["unmsg"]);
                 user_div.append( UserShow( user_list_data[i]["user_name"], user_list_data[i]["online"], user_list_data[i]["unmsg"] ) );
             }
 
             //当前聊天室
             var room_list_data = obj["room_list"];
-            console.log(room_list_data);
+            //console.log(room_list_data);
             var room_div = $("#roomlist");
             room_div.empty();
             for (var i = 0; i < room_list_data.length; i ++) {
@@ -181,7 +159,6 @@ window.onload = function () {
                     ' <a href="/room?room_name='+room_list_data[i]["room_name"]+
                     '" target="_blank">进入房间</a> <br>');
             }
-
 
         };
     } else {
