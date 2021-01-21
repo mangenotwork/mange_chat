@@ -1,22 +1,36 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<title>ManGe Chat - 指定房间聊天</title>
+{{template "_head.html" .}}
+
+<body ontouchstart="" >
+<div style="width: 100%;height: 48px;background-color: #ddd;">
+    <a href="/"><span style="font-size: 32px;margin-left: 5%;"> < </span></a>
+    <span style="font-size: 26px; margin-left: 5%;" id="num_title" > {{.room_name}} 12人 </span>
+</div>
+
+
+<div id="show"></div>
+<form >
+    <div class="weui-cells weui-cells_form" style="">
+      <div class="weui-cell">
+        <div class="weui-cell__bd">
+          <textarea class="weui-textarea" id="msg" placeholder="请输入文本" rows="3"></textarea>
+          <div class="weui-textarea-counter"><span>0</span>/200</div>
+        </div>
+      </div>
+    </div>
+    <div class="weui-flex" style="margin-top:21px;">
+          <div class="weui-flex__item" >
+              <a id="form" class="weui-btn weui-btn_primary" style="height: 38px;">发送</a>
+          </div>
+      </div>
+</form>
+
+{{template "_js.html" .}}
 <script type="text/javascript">
 window.onload = function () {
     var conn;
     var msg = document.getElementById("msg");
-    var log = document.getElementById("log");
-  
-    function appendLog(item) {
-        var doScroll = log.scrollTop > log.scrollHeight - log.clientHeight - 1;
-        log.appendChild(item);
-        if (doScroll) {
-            log.scrollTop = log.scrollHeight - log.clientHeight;
-        }
-    }
 
-    document.getElementById("form").onsubmit = function () {
+    $("#form").click(function () {
         if (!conn) {
             return false;
         }
@@ -26,78 +40,34 @@ window.onload = function () {
         conn.send(msg.value);
         msg.value = "";
         return false;
-    };
+    });
     
     if (window["WebSocket"]) {
         var user_name = "{{.user_name}}";
         var room_name = "{{.room_name}}";
         conn = new WebSocket("ws://" + document.location.host + "/ws/room?room_name="+room_name+"&user_name="+user_name);
         conn.onclose = function (evt) {
-            var item = document.createElement("div");
-            item.innerHTML = "<b>Connection closed. 连接断开</b>";
-            appendLog(item);
+            appendErr("<b>Connection closed. 连接断开</b>");
         };
         conn.onmessage = function (evt) {
             var messages = evt.data.split('\n');
-            for (var i = 0; i < messages.length; i++) {
-                var item = document.createElement("div");
-                item.innerText = messages[i];
-                appendLog(item);
+            var obj = JSON.parse(messages);
+            $("#num_title").empty();
+            $("#num_title").append(room_name+obj["count"]+"人 ")
+
+            if (user_name == obj["name"]){
+                MyShow(obj["data"], obj["time"]);
+            }else{
+                YouShow(obj["data"], obj["name"], obj["time"]);
             }
         };
     } else {
-        var item = document.createElement("div");
-        item.innerHTML = "<b>Your browser does not support WebSockets.</b>";
-        appendLog(item);
+       appendErr("<b>你当前使用的浏览器不支持即使聊天，请更新或更换浏览器.</b>");
     }
 };
 </script>
-<style type="text/css">
-html {
-    overflow: hidden;
-}
 
-body {
-    overflow: hidden;
-    padding: 0;
-    margin: 0;
-    width: 100%;
-    height: 100%;
-    background: gray;
-}
 
-#log {
-    background: white;
-    margin: 0;
-    padding: 0.5em 0.5em 0.5em 0.5em;
-   height: 300px;
-    top: 0.5em;
-    left: 0.5em;
-    right: 0.5em;
-    bottom: 3em;
-    overflow: auto;
-}
 
-#form {
-    padding: 0 0.5em 0 0.5em;
-    margin: 0;
-   
-    bottom: 1em;
-    left: 0px;
-    width: 100%;
-    overflow: hidden;
-}
-
-</style>
-</head>
-<body>
-<h1>房间名： {{.room_name}} </h1>
-<h3>当前用户: {{.user_name}} </h3>
-<div id="man">name(发送人),time(发送时间),count(当前人数),data(发送内容)</div>
-<div id="log"></div>
-<form id="form">
-    <input type="submit" value="Send" />
-    <input type="text" id="msg" size="64"/>
-</form>
 </body>
 </html>

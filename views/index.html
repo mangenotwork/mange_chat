@@ -28,18 +28,38 @@
 
                 </div>
                 <div id="tab2" class="weui-tab__bd-item">
-                  <input type="text" id="room_name"> <button onclick="CreateRoom()">创建群聊房间</button>
-                  <hr>
-                  <h3>当前聊天室</h3>
+
+                  <!-- <div class="weui-cells weui-cells_form">
+                    <div class="weui-cell">
+                      <div class="weui-cell__hd"><label class="weui-label">群聊房间名</label></div>
+                        <div class="weui-cell__bd">
+                          <input class="weui-input"  id="room_name" type="text" placeholder="输入一个名称">
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="weui-flex" style="margin-top:21px;">
+                      <div class="weui-flex__item" >
+                          <a id="form" class="weui-btn weui-btn_primary" onclick="CreateRoom()" style="height: 38px;">创建群聊房间</a>
+                      </div>
+                  </div> -->
+
+                  <a href="javascript:;" id="show-prompt" class="weui-btn weui-btn_default">点击创建群聊房间</a>
+                  <!-- <input type="text" id="room_name"> <button onclick="CreateRoom()">创建群聊房间</button> -->
+
+                  <div class="weui-cells__title">当前聊天室</div>
                   <div id="roomlist"> </div>
-                    
+
                 </div>
                 <div id="tab3" class="weui-tab__bd-item">
-                  <h1>页面三</h1>
-                  <h1> mange webChat </h1>
 
-                    <h3>User : {{.user}}</h3>
-                    <button id="a">这是一个发送消息的测试按钮</button>
+                  <div style="width: 100%;height: 300px;text-align: center;padding-top: 28px;">
+                      <img class="weui-media-box__thumb" src="https://static.oschina.net/uploads/logo/weui_DFqpP.png" alt="">
+                      <h3>User : {{.user}}</h3>
+                  </div>
+
+                  <a href="javascript:;" id="a" class="weui-btn weui-btn_default">这是一个发送消息的测试按钮</a>
+
                 </div>
                 <div id="tab4" class="weui-tab__bd-item">
                   <h1>页面四</h1>
@@ -64,13 +84,13 @@
                   <div class="weui-tabbar__icon">
                     <img src="https://jqweui.cn/dist/demos/images/icon_nav_button.png" alt="">
                   </div>
-                  <p class="weui-tabbar__label">发现</p>
+                  <p class="weui-tabbar__label">群聊</p>
                 </a>
                 <a href="#tab3" class="weui-tabbar__item">
                   <div class="weui-tabbar__icon">
                     <img src="https://jqweui.cn/dist/demos/images/icon_nav_button.png" alt="">
                   </div>
-                  <p class="weui-tabbar__label">我</p>
+                  <p class="weui-tabbar__label">我的</p>
                 </a>
               </div>
         </div>
@@ -107,6 +127,17 @@ function UserShow(name,online,unmsg) {
 }
 
 
+function RoomShow(room_name){
+    var data = '<a href="/room?room_name='+room_name+'" class="weui-media-box weui-media-box_appmsg">'+
+               '      <div class="weui-media-box__bd">'+
+               '          <h4 class="weui-media-box__title">'+room_name+'</h4>'+
+               '      <p class="weui-media-box__desc">12人</p>'+
+               '      </div>'+
+               '   </a>';
+    return data
+}
+
+
 window.onload = function () {
     var conn;
 
@@ -118,6 +149,32 @@ window.onload = function () {
         return false;
     });
     
+    //创建群聊房间
+    $("#show-prompt").click(function(){
+      $.prompt({
+          text: "",
+          title: "创建群聊房间",
+          onOK: function(text) {
+            var room_name = text;
+            if (room_name === "") {
+              alert("room name is null.");
+              return
+            }
+            $.ajax({
+              type : "GET",
+              url : "/create/room?room_name="+room_name,
+              success : function(result) {//返回数据根据结果进行相应的处理 
+                  console.log(result);
+                } 
+            });
+          },
+          onCancel: function() {
+            console.log("取消了");
+          },
+          input: ''
+        });
+    });
+
 
     if (window["WebSocket"]) {
         var name = "{{.user}}";
@@ -129,12 +186,8 @@ window.onload = function () {
         };
         conn.onmessage = function (evt) {
             var messages = evt.data.split('\n');
-            console.log(messages[0]);
             var str = messages[0];
-            console.log(typeof(str));
             var obj = JSON.parse(str);
-            console.log(typeof(obj));
-            console.log(obj);
 
             //当前聊天用户
             var user_list_data = obj["user_list"];
@@ -145,24 +198,20 @@ window.onload = function () {
                 if (name === user_list_data[i]["user_name"]){
                     continue;
                 }
-                //console.log(user_list_data[i]["user_name"], user_list_data[i]["online"], user_list_data[i]["unmsg"]);
                 user_div.append( UserShow( user_list_data[i]["user_name"], user_list_data[i]["online"], user_list_data[i]["unmsg"] ) );
             }
 
             //当前聊天室
             var room_list_data = obj["room_list"];
-            //console.log(room_list_data);
             var room_div = $("#roomlist");
             room_div.empty();
             for (var i = 0; i < room_list_data.length; i ++) {
-                room_div.append('群聊名 : '+room_list_data[i]["room_name"]+
-                    ' <a href="/room?room_name='+room_list_data[i]["room_name"]+
-                    '" target="_blank">进入房间</a> <br>');
-            }
 
+                room_div.append(RoomShow(room_list_data[i]["room_name"]));
+            }
         };
     } else {
-    	alert("Your browser does not support WebSockets.");
+    	alert("你当前使用的浏览器不支持即使聊天，请更新或更换浏览器.");
     }
 
 };
@@ -182,6 +231,9 @@ function CreateRoom(){
 	    } 
 	});
 }
+
+    
+
 
 </script>
 </body>

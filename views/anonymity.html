@@ -1,50 +1,10 @@
 {{template "_head.html" .}}
 
-<style type="text/css">
-
-#log {
-    background: white;
-    margin: 0;
-    padding: 0.5em 0.5em 0.5em 0.5em;
-   height: 50%;
-    top: 0.5em;
-    left: 0.5em;
-    right: 0.5em;
-    bottom: 3em;
-    overflow: auto;
-}
-
-#show {
-    background: white;
-    margin: 0;
-    padding: 0.5em 0.5em 0.5em 0.5em;
-   height: 50%;
-    top: 0.5em;
-    left: 0.5em;
-    right: 0.5em;
-    bottom: 3em;
-    overflow: auto;
-}
-
-#form {
-    padding: 0 0.5em 0 0.5em;
-    margin: 0;
-   
-    bottom: 1em;
-    left: 0px;
-    width: 100%;
-    overflow: hidden;
-}
-
-</style>
-</head>
 <body ontouchstart="" >
 <div style="width: 100%;height: 48px;background-color: #ddd;">
     <a href="/"><span style="font-size: 32px;margin-left: 5%;"> < </span></a>
     <span style="font-size: 26px; margin-left: 5%;" id="num_title" > 匿名聊天室 {{.number}}人 </span>
 </div>
-
-<div class="weui-cells__title">消息</div>
 
 <div id="show"></div>
 <form >
@@ -69,7 +29,6 @@
 window.onload = function () {
     var conn;
     var msg = document.getElementById("msg");
-    var log = document.getElementById("log");
 
     $("#form").click(function () {
         if (!conn) {
