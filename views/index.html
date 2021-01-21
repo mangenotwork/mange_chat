@@ -26,48 +26,39 @@
         <div class="weui-tab">
               <div class="weui-tab__bd">
                 <div id="tab1" class="weui-tab__bd-item weui-tab__bd-item--active">
-                  <h1>页面一</h1>
 
-                  <h1> mange webChat </h1>
-
-                    <h3>User : {{.user}}</h3>
-
-
-
-                    <ul>
-                    <li><a href="/anonymity" target="_blank">匿名聊天室</a></li>
-                    <li><input type="text" id="room_name"> <button onclick="CreateRoom()">创建群聊房间</button></li>
-
-                    </ul>
-
-                    <hr>
-
-                    <h3>当前聊天室</h3>
-                    <div id="roomlist"> </div>
-                    <hr>
-
-                    <h3>当前聊天用户</h3>
-                    <div id="userlist">
-                        {{range .user_list}}
-                            {{.Name}} {{.Online}} <br>
-                        {{end}}
-
+                    <div class="weui-search-bar" id="searchBar">
+                      <form class="weui-search-bar__form">
+                        <div class="weui-search-bar__box">
+                          <i class="weui-icon-search"></i>
+                          <input type="search" class="weui-search-bar__input" id="searchInput" placeholder="搜索" required="">
+                          <a href="javascript:" class="weui-icon-clear" id="searchClear"></a>
+                        </div>
+                        <label class="weui-search-bar__label" id="searchText">
+                          <i class="weui-icon-search"></i>
+                          <span>搜索</span>
+                        </label>
+                      </form>
+                      <a href="javascript:" class="weui-search-bar__cancel-btn" id="searchCancel">取消</a>
                     </div>
-                    <hr>
 
-                    <h3>我的消息</h3>
-                    <div id="msglist">
-                    </div>
-                    <hr>
-
-                    <button id="a">这是一个发送消息的测试按钮</button>
+                    <div class="weui-panel__bd" id="userlist"></div>
+                    
 
                 </div>
                 <div id="tab2" class="weui-tab__bd-item">
-                  <h1>页面二</h1>
+                  <input type="text" id="room_name"> <button onclick="CreateRoom()">创建群聊房间</button>
+                  <hr>
+                  <h3>当前聊天室</h3>
+                  <div id="roomlist"> </div>
+                    
                 </div>
                 <div id="tab3" class="weui-tab__bd-item">
                   <h1>页面三</h1>
+                  <h1> mange webChat </h1>
+
+                    <h3>User : {{.user}}</h3>
+                    <button id="a">这是一个发送消息的测试按钮</button>
                 </div>
                 <div id="tab4" class="weui-tab__bd-item">
                   <h1>页面四</h1>
@@ -82,19 +73,19 @@
                   </div>
                   <p class="weui-tabbar__label">聊天</p>
                 </a>
-                <a href="#tab2" class="weui-tabbar__item">
+                <a href="/anonymity" class="weui-tabbar__item">
                   <div class="weui-tabbar__icon">
                     <img src="https://jqweui.cn/dist/demos/images/icon_nav_button.png" alt="">
                   </div>
-                  <p class="weui-tabbar__label">通讯录</p>
+                  <p class="weui-tabbar__label">匿名聊天室</p>
                 </a>
-                <a href="#tab3" class="weui-tabbar__item">
+                <a href="#tab2" class="weui-tabbar__item">
                   <div class="weui-tabbar__icon">
                     <img src="https://jqweui.cn/dist/demos/images/icon_nav_button.png" alt="">
                   </div>
                   <p class="weui-tabbar__label">发现</p>
                 </a>
-                <a href="#tab4" class="weui-tabbar__item">
+                <a href="#tab3" class="weui-tabbar__item">
                   <div class="weui-tabbar__icon">
                     <img src="https://jqweui.cn/dist/demos/images/icon_nav_button.png" alt="">
                   </div>
@@ -106,6 +97,33 @@
 </div>
 
 <script type="text/javascript">
+
+
+
+function UserShow(name,online,unmsg) {
+
+    var unmsg_html = "";
+    if (unmsg != ""){
+        unmsg_html = '<span class="weui-badge" style="position: absolute;top: 0.4em;right: 0.4em;">'+unmsg+'</span>'
+    }
+
+    console.log(unmsg_html);
+
+    var data = '<a href="/onebyone?you_name='+name+'" class="weui-media-box weui-media-box_appmsg">'+
+           '    <div class="weui-media-box__hd">'+
+           '        <img class="weui-media-box__thumb" src="https://static.oschina.net/uploads/logo/weui_DFqpP.png" alt="">'+
+           unmsg_html+
+           '    </div>'+
+           '    <div class="weui-media-box__bd">'+
+           '        <h4 class="weui-media-box__title">'+
+           '            '+name+' | '+online+''+
+           '            <span class="weui-media-box__title-after"></span>'+
+           '        </h4>'+
+           '    <p class="weui-media-box__desc">...</p>'+
+           '    </div>'+
+           '</a>';
+    return data
+}
 
 
 window.onload = function () {
@@ -146,9 +164,11 @@ window.onload = function () {
                 if (name === user_list_data[i]["user_name"]){
                     continue;
                 }
-                user_div.append('用户名 : '+user_list_data[i]["user_name"]+' | 是否在线 : '+user_list_data[i]["online"]+
-                    ' | 未读消息 = '+user_list_data[i]["unmsg"]+
-                    ' | <a href="/onebyone?you_name='+user_list_data[i]["user_name"]+'" target="_blank">一对一聊天</a><br>');
+                // user_div.append('用户名 : '+user_list_data[i]["user_name"]+' | 是否在线 : '+user_list_data[i]["online"]+
+                //     ' | 未读消息 = '+user_list_data[i]["unmsg"]+
+                //     ' | <a href="/onebyone?you_name='+user_list_data[i]["user_name"]+'" target="_blank">一对一聊天</a><br>');
+                console.log(user_list_data[i]["user_name"], user_list_data[i]["online"], user_list_data[i]["unmsg"]);
+                user_div.append( UserShow( user_list_data[i]["user_name"], user_list_data[i]["online"], user_list_data[i]["unmsg"] ) );
             }
 
             //当前聊天室
