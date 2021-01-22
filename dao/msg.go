@@ -111,3 +111,80 @@ func (dao *DaoMsg) GetUnreadMsg(me string) (datas map[string]string) {
 	log.Println("获取未读消息 = ", datas)
 	return
 }
+
+// 保存用户信息到redis
+func (dao *DaoMsg) SetUser(me string, data map[string]string) {
+
+	rc, err := conn.RedisConn()
+	if err != nil {
+		log.Println("未获取到redis连接")
+		return
+	}
+	defer rc.Close()
+
+	key := fmt.Sprintf(obj.UserInfoKey, me)
+
+	args := redis.Args{}.Add(key)
+	for k, v := range data {
+		args = args.Add(k)
+		args = args.Add(v)
+	}
+
+	log.Println("执行redis : ", "HMSET", args)
+	res, err := rc.Do("HMSET", args...)
+	if err != nil {
+		log.Println("GET error", err.Error())
+	}
+	log.Println(res)
+}
+
+// 从redis获取用户信息
+func (dao *DaoMsg) GetUserInfo(me string) (data map[string]string) {
+
+	data = make(map[string]string, 0)
+
+	rc, err := conn.RedisConn()
+	if err != nil {
+		log.Println("未获取到redis连接")
+		return
+	}
+	defer rc.Close()
+
+	key := fmt.Sprintf(obj.UserInfoKey, me)
+
+	fmt.Println("执行redis : ", "HGETALL", key)
+	data, err = redis.StringMap(rc.Do("HGETALL", key))
+	if err != nil {
+		fmt.Println("GET error", err.Error())
+		return
+	}
+	fmt.Println(data)
+
+	return
+}
+
+// 从redis 获取名称是否重复
+func (dao *DaoMsg) UserNameRepeat(name string) bool {
+	rc, err := conn.RedisConn()
+	if err != nil {
+		log.Println("未获取到redis连接")
+		return true
+	}
+	defer rc.Close()
+	key := fmt.Sprintf(obj.UserInfoKey, name)
+
+	return EXISTSKey(rc, key)
+}
+
+//EXISTSKey 检查给定 key 是否存在。
+// true 存在
+// false 不存在
+func EXISTSKey(rc redis.Conn, keyname string) bool {
+	fmt.Println("[Execute redis command]: ", "EXISTS", keyname)
+	datas, err := redis.String(rc.Do("DUMP", keyname))
+	if err != nil || datas == "0" {
+		fmt.Println("GET error", err.Error())
+		return false
+	}
+	return true
+}

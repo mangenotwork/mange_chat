@@ -54,11 +54,14 @@
                 <div id="tab3" class="weui-tab__bd-item">
 
                   <div style="width: 100%;height: 300px;text-align: center;padding-top: 28px;">
-                      <img class="weui-media-box__thumb" src="https://static.oschina.net/uploads/logo/weui_DFqpP.png" alt="">
+                      <img class="weui-media-box__thumb" src="{{.myInfo.img}}" alt="" style="width: 128px;">
                       <h3>User : {{.user}}</h3>
+                      <span>创建时间: {{.myInfo.date}}</span>
+
                   </div>
 
                   <a href="javascript:;" id="a" class="weui-btn weui-btn_default">这是一个发送消息的测试按钮</a>
+                  <a href="/loginout" class="weui-btn weui-btn_default"> 退出 </a>
 
                 </div>
                 <div id="tab4" class="weui-tab__bd-item">

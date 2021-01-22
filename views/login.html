@@ -1,8 +1,8 @@
 {{template "_head.html" .}}
 
 <body ontouchstart="" >
-  <header class="demos-header">
-      <h1 class="demos-title">登录到 ManGe Chat</h1>
+  <header class="demos-header" style="text-align: center;margin: 24px;">
+      <h3 class="demos-title">登录到 ManGe Chat</h3>
   </header>
 
   <div class="weui-cells weui-cells_form">
@@ -13,22 +13,75 @@
       </div>
     </div>
   </div>
+
+  <div class="weui-cells__title">选择头像</div>
+    <div id="head_img"></div>
+
+   <div>
+    {{range .imgs}}
+      <a onclick="HeadImg('{{.}}')"><img src="{{.}}" style="width: 50px;margin: 8px;"></a>
+    {{end}}
+
+      
+      
+   </div>
+
   <div class="weui-flex" style="margin-top:18px;">
       <div class="weui-flex__item" >
-          <a onclick="Login()" class="weui-btn weui-btn_primary" style="margin:8px;">进入</a>
+          <a onclick="Login()" class="weui-btn weui-btn_default" style="margin:8px;">新建</a>
+      </div>
+  </div>
+
+   <div class="weui-flex" style="margin-top:18px;">
+      <div class="weui-flex__item" >
+          <a onclick="Login2()" class="weui-btn weui-btn_default" style="margin:8px;">已有登录</a>
       </div>
   </div>
 </body>
 
 <script type="text/javascript">
-  
+
+  var my_head_img = "";
+
+  $(document).ready(function(){
+    
+  });
+
+  function HeadImg(img){
+    my_head_img = img;
+    $("#head_img").empty();
+    $("#head_img").append('<img src="'+img+'" style="width: 80px;margin: 12px;">')
+  }
+
   function Login(){
+
       var name = $("#name").val();
-      if (name != "") {
-         window.location.href="/login/"+name;
-	  }else{
-	      alert("请输入一个昵称");
-	  }
+
+      if (my_head_img == ""){
+        alert("请选择一个头像");
+        return
+      }
+
+      if (name == "") {
+        alert("请输入一个昵称");
+        return
+      }
+
+      window.location.href="/login/"+name+"?img="+my_head_img;
+
+  }
+
+  function Login2(){
+
+      var name = $("#name").val();
+
+      if (name == "") {
+        alert("请输入一个昵称");
+        return
+      }
+
+      window.location.href="/login/"+name;
+
   }
   
 </script>

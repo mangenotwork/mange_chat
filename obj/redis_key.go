@@ -6,4 +6,7 @@ const (
 
 	//用哈希 记录来自谁的未读消息  unmsg:<用户>
 	UnreadMsgKey = "unmsg:%s"
+
+	//用户信息  u:<用户>
+	UserInfoKey = "u:%s"
 )
