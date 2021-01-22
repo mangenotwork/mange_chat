@@ -16,26 +16,26 @@ function appendErr(item) {
 }
 
 
-function MyShow(content,time){
+function MyShow(content,time,img){
     var data = '<span style="font-size:8px;margin-left:40%;">'+time+'</span>'+
         '<a class="weui-cell weui-cell_access" href="javascript:;" style="margin-top: 25px;margin-bottom: 25px;">'+
         '<div class="weui-cell__bd weui-cell_primary" style="margin-left: 10px;">'+
         '    <p style="float: right;margin-right: 10px;">'+content+'</p>'+
         '</div>'+
         '<div class="weui-cell__hd">'+
-        '    <img src="https://static.oschina.net/uploads/logo/weui_DFqpP.png" alt="" style="width:40px;margin-left: 4px;display:block">'+
+        '    <img src="'+img+'" alt="" style="width:40px;margin-left: 4px;display:block">'+
         '</div>'+
         '</a>';
     appendShow(data)
 }
 
 
-function YouShow(content, name, time){
+function YouShow(content, name, time, img){
     var data = '<span style="font-size:8px;margin-left:40%;">'+time+'</span>'+
         '<a class="weui-cell weui-cell_access" href="javascript:;" style="margin-top: 25px;margin-bottom: 25px;">'+
         '<div class="weui-cell__hd">'+
         '    <span style="font-size: 12px;">'+name+'</span> '+
-        '    <img src="https://static.oschina.net/uploads/logo/weui_DFqpP.png" alt="" style="width:40px;margin-right:4px;display:block">'+
+        '    <img src="'+img+'" alt="" style="width:40px;margin-right:4px;display:block">'+
         '</div>'+
         '<div class="weui-cell__bd weui-cell_primary" style="margin-left: 10px;">'+
         '    <p>'+content+'</p>'+
@@ -44,36 +44,32 @@ function YouShow(content, name, time){
     appendShow(data)
 }
 
-function MyShow1vs1(content, time, red){
-    var isred = ""
-    if (red == "未读"){
-        isred = '<span style="color: red">未读</span>'
-    }
-    var data = '<span style="font-size:8px;margin-left:40%;">'+time+'</span>'+
-        '<a class="weui-cell weui-cell_access" href="javascript:;" style="margin-top: 25px;margin-bottom: 25px;">'+
+function MyShow1vs1(content, time, img){
+    // var isred = ""
+    // if (red == "未读"){
+    //     isred = '<span style="color: red">未读</span>'
+    // }
+    var data = '<a class="weui-cell weui-cell_access" href="javascript:;" style="margin-top: 25px;margin-bottom: 25px;">'+
         '<div class="weui-cell__bd weui-cell_primary" style="margin-left: 10px;">'+
-        '    <p style="float: right;margin-right: 10px;">'+content+'</p>'+isred+
+        '    <p style="float: right;margin-right: 10px;">'+content+'</p>'+
+        '<br><span style="font-size:7px;float: right;">'+time+'</span>'+
         '</div>'+
         '<div class="weui-cell__hd">'+
-        '    <img src="https://static.oschina.net/uploads/logo/weui_DFqpP.png" alt="" style="width:40px;margin-left: 4px;display:block">'+
+        '    <img src="'+img+'" alt="" style="width:40px;margin-left: 4px;display:block">'+
         '</div>'+
         '</a>';
     appendShow(data)
 }
 
 
-function YouShow1vs1(content, time, red){
-    var isred = ""
-    if (red == "未读"){
-        isred = '<span style="color: red">未读</span>'
-    }
-    var data = '<span style="font-size:8px;margin-left:40%;">'+time+'</span>'+
-        '<a class="weui-cell weui-cell_access" href="javascript:;" style="margin-top: 25px;margin-bottom: 25px;">'+
+function YouShow1vs1(content, time, img){
+    var data = '<a class="weui-cell weui-cell_access" href="javascript:;" style="margin-top: 25px;margin-bottom: 25px;">'+
         '<div class="weui-cell__hd">'+
-        '    <img src="https://static.oschina.net/uploads/logo/weui_DFqpP.png" alt="" style="width:40px;margin-right:4px;display:block">'+
+        '    <img src="'+img+'" alt="" style="width:40px;margin-right:4px;display:block">'+
         '</div>'+
         '<div class="weui-cell__bd weui-cell_primary" style="margin-left: 10px;">'+
-        '    <p>'+content+'</p>'+isred+
+        '    <p style="float: left;">'+content+'</p>'+
+        '<br><span style="font-size:7px;float: left;">'+time+'</span>'+
         '</div>'+
         '</a>';
     appendShow(data)

@@ -4,6 +4,7 @@ import (
 	"sync"
 
 	"github.com/gorilla/websocket"
+	"github.com/mangenotwork/mange_chat/dao"
 )
 
 // -----------------------------------------------------------
@@ -20,6 +21,8 @@ var (
 // 匿名用户
 type AnonymityClient struct {
 	Name string
+
+	User string
 
 	// The websocket connection.
 	Conn *websocket.Conn
@@ -220,6 +223,8 @@ func OutLobby(c *User) {
 	c.Cmd <- []byte("下线")
 	c.Conn = nil
 
+	//用户下线记录
+	new(dao.DaoMsg).UserOutOnline(c.Name)
 	//close(c.Send)
 	//close(c.Cmd)
 }

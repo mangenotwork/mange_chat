@@ -1,26 +1,26 @@
 {{template "_head.html" .}}
 
 <body ontouchstart="" >
-<div style="width: 100%;height: 48px;background-color: #ddd;text-align: center;">
+<div style="width: 100%;height: 45px;background-color: #efeff4;text-align: center;border-bottom:1px solid #ddd">
     <a href="/" style=""><span style="font-size: 32px;float: left;margin-left: 20px;"> < </span></a>
-    <span style="font-size: 26px;margin-right: 20px;" > {{.you_name}} </span>
+    <span style="font-size: 25px;margin-right: 20px;" > {{.you_name}} </span>
 </div>
 
 
 <div id="show"></div>
 
-<form >
+<form style="">
     <div class="weui-cells weui-cells_form" style="">
       <div class="weui-cell">
         <div class="weui-cell__bd">
-          <textarea class="weui-textarea" id="msg" placeholder="请输入文本" rows="3"></textarea>
+          <textarea class="weui-textarea" id="msg" placeholder="请输入文本" rows="2"></textarea>
           <div class="weui-textarea-counter"><span>0</span>/200</div>
         </div>
       </div>
     </div>
     <div class="weui-flex" style="margin-top:21px;">
           <div class="weui-flex__item" >
-              <a id="form" class="weui-btn weui-btn_primary" style="height: 38px;">发送</a>
+              <a id="form" class="weui-btn weui-btn_plain-default" style="height: 38px;width: 96%;">发送</a>
           </div>
       </div>
 </form>
@@ -38,9 +38,9 @@ function History(){
     for (var i = 0; i < history_msg_obj.length; i++){
         var msg_obj = JSON.parse(history_msg_obj[i]);
         if (myname == msg_obj["name"]){
-            MyShow1vs1(msg_obj["data"], msg_obj["time"], msg_obj["msg_state"]);
+            MyShow1vs1(msg_obj["data"], msg_obj["time"], msg_obj["head_img"]);
         }else{
-            YouShow1vs1(msg_obj["data"], msg_obj["time"], msg_obj["msg_state"]);
+            YouShow1vs1(msg_obj["data"], msg_obj["time"], msg_obj["head_img"]);
         }
     }
 }
@@ -75,9 +75,9 @@ window.onload = function () {
             var obj = JSON.parse(messages);
 
             if (myname == obj["name"]){
-                MyShow1vs1(obj["data"], obj["time"], obj["msg_state"]);
+                MyShow1vs1(obj["data"], obj["time"], obj["head_img"]);
             }else{
-                YouShow1vs1(obj["data"], obj["time"], obj["msg_state"]);
+                YouShow1vs1(obj["data"], obj["time"], obj["head_img"]);
             }
         };
     } else {

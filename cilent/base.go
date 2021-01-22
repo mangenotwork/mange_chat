@@ -4,10 +4,12 @@ import (
 	"bytes"
 	"encoding/json"
 	"log"
+	"sort"
 	"sync"
 	"time"
 
 	"github.com/gorilla/websocket"
+	"github.com/mangenotwork/mange_chat/common/utils"
 	"github.com/mangenotwork/mange_chat/dao"
 	"github.com/mangenotwork/mange_chat/obj"
 )
@@ -25,6 +27,7 @@ var (
 
 type Message struct {
 	Name         string `json:"name"`
+	HeadImg      string `json:"head_img"` //头像
 	Time         string `json:"time"`
 	RoomManCount int    `json:"count"`     // 匿名房间人数
 	Data         string `json:"data"`      //输入内容
@@ -323,13 +326,15 @@ func OnebyoneRoomReadPump(c *obj.UserC) {
 			mesgState = "已读"
 		}
 
+		myInfo := new(dao.DaoMsg).GetUserInfo(c.Name)
 		// 消息内容
 		m := &Message{
 			Name:         c.Name,
+			HeadImg:      myInfo["img"],
 			Time:         time.Now().Format("2006-01-02 15:04:05"),
 			RoomManCount: room.GetManCount(),
 			Data:         string(message),
-			MsgState:     mesgState,
+			//MsgState:     mesgState,
 		}
 		log.Println("write message : ", string(message), m)
 
@@ -344,7 +349,7 @@ func OnebyoneRoomReadPump(c *obj.UserC) {
 
 		//未读消息到未读表
 		if mesgState == "未读" {
-			//你来自我的未读
+			//你来自我的未读 存入redis
 			new(dao.DaoMsg).SaveUnreadMsg(c.You, c.Name)
 		}
 
@@ -353,10 +358,21 @@ func OnebyoneRoomReadPump(c *obj.UserC) {
 
 			select {
 			case client.Send <- data:
-			default:
-				obj.UserOutOnebyoneRoom(c)
+				// default:
+				// 	obj.UserOutOnebyoneRoom(c)
 			}
 		}
+
+		//对方没在聊天房间，查看是否在大厅
+		if mesgState == "未读" {
+			y := obj.GetUser(c.You)
+			if y != nil {
+				select {
+				case y.Cmd <- []byte("未读消息"):
+				}
+			}
+		}
+
 	}
 }
 
@@ -461,8 +477,8 @@ func LobbyReadPump(c *obj.User) {
 
 			select {
 			case client.Send <- data:
-			default:
-				obj.OutLobby(c)
+				// default:
+				// 	obj.OutLobby(c)
 			}
 		}
 	}
@@ -470,19 +486,22 @@ func LobbyReadPump(c *obj.User) {
 
 // 输出的用户列表
 type UserInfo struct {
-	Name   string `json:"user_name"`
-	Online bool   `json:"online"`
-	UnMsg  string `json:"unmsg"` //未读消息数
+	Name      string `json:"user_name"`
+	Img       string `json:"img"`
+	Online    bool   `json:"online"`
+	UnMsg     string `json:"unmsg"`      //未读消息数
+	LoginTime string `json:"login_time"` //登录时间
 }
 
 func LobbyReadPump2(c *obj.User) {
+
+	defer obj.OutLobby(c)
+
 	for {
 		select {
 		case message := <-c.Cmd:
-
-			roomList := make([]*RoomInfo, 0)
-
 			//获取当前房间列表
+			roomList := make([]*RoomInfo, 0)
 			for k, _ := range obj.AllRoom {
 				roomList = append(roomList, &RoomInfo{
 					Name: k,
@@ -496,7 +515,13 @@ func LobbyReadPump2(c *obj.User) {
 				RoomList: roomList,
 			}
 			log.Println("write message : ", string(message), m)
-			log.Println(obj.Lobby)
+			//log.Println(obj.Lobby)
+
+			//用户上线
+			new(dao.DaoMsg).UserToOnline(c.Name)
+
+			//在redis 获取用户列表
+			allUser := new(dao.DaoMsg).GetAllUser()
 
 			//广播到每个client
 			for client, _ := range obj.Lobby {
@@ -513,23 +538,36 @@ func LobbyReadPump2(c *obj.User) {
 				//获取每个人的未读消息
 				unMsgMap := new(dao.DaoMsg).GetUnreadMsg(client.Name)
 
+				//未读消息总数
+				unMsgNum := 0
+				for _, v := range unMsgMap {
+					unMsgNum = unMsgNum + utils.Str2Int(v)
+				}
+				m2.UnMsgNum = unMsgNum
+
 				//获取当前用户列表
-				for k, v := range obj.AllUser {
+				for k, v := range allUser {
 					online := false
-					if v.Conn != nil {
+					if utils.Str2Int(v) > 0 {
 						online = true
 					}
+					info := new(dao.DaoMsg).GetUserInfo(k)
 					userList = append(userList, &UserInfo{
-						Name:   k,
-						Online: online,
-						UnMsg:  unMsgMap[k],
+						Name:      k,
+						Online:    online,
+						Img:       info["img"],
+						UnMsg:     unMsgMap[k],
+						LoginTime: utils.StrUnix2Date(v),
 					})
 				}
-				userlist, err := json.Marshal(&userList)
-				if err != nil {
-					log.Println("序列化失败,error=", err)
-				}
-				log.Println("userlist = ", string(userlist))
+
+				sort.Slice(userList, func(i, j int) bool {
+					if userList[i].LoginTime == userList[j].LoginTime {
+						return userList[i].Name > userList[j].Name
+					} else {
+						return userList[i].LoginTime > userList[j].LoginTime
+					}
+				})
 
 				m2.UserList = userList
 
@@ -541,14 +579,13 @@ func LobbyReadPump2(c *obj.User) {
 
 				select {
 				case client.Send <- data:
-				default:
-					obj.OutLobby(c)
+					// default:
+					// 	obj.OutLobby(c)
 				}
 			}
 
 		}
 	}
-
 }
 
 // 输出的房间列表
@@ -563,6 +600,5 @@ type LobbyMsg struct {
 	UserList []*UserInfo `json:"user_list"` // 当前用户列表
 	RoomList []*RoomInfo `json:"room_list"` // 当前房间列表
 	Msg      string      `json:"msg"`       //其他信息
+	UnMsgNum int         `json:"msg_count"` //未读消息总数
 }
-
-//

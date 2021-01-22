@@ -71,21 +71,21 @@
 
               <div class="weui-tabbar">
                 <a href="#tab1" class="weui-tabbar__item weui-bar__item--on">
-                  <span class="weui-badge" style="position: absolute;top: -.4em;right: 1em;">8</span>
+                  <div id="unmsg_num"></div>
                   <div class="weui-tabbar__icon">
-                    <img src="https://jqweui.cn/dist/demos/images/icon_nav_button.png" alt="">
+                    <img src="https://jqweui.cn/dist/demos/images/icon_nav_actionSheet.png" alt="">
                   </div>
                   <p class="weui-tabbar__label">聊天</p>
                 </a>
                 <a href="/anonymity" class="weui-tabbar__item">
                   <div class="weui-tabbar__icon">
-                    <img src="https://jqweui.cn/dist/demos/images/icon_nav_button.png" alt="">
+                    <img src="https://jqweui.cn/dist/demos/images/icon_nav_panel.png" alt="">
                   </div>
                   <p class="weui-tabbar__label">匿名聊天室</p>
                 </a>
                 <a href="#tab2" class="weui-tabbar__item">
                   <div class="weui-tabbar__icon">
-                    <img src="https://jqweui.cn/dist/demos/images/icon_nav_button.png" alt="">
+                    <img src="https://jqweui.cn/dist/demos/images/icon_nav_cell.png" alt="">
                   </div>
                   <p class="weui-tabbar__label">群聊</p>
                 </a>
@@ -104,7 +104,7 @@
 
 
 
-function UserShow(name,online,unmsg) {
+function UserShow(name,online,unmsg,img,time) {
 
     var unmsg_html = "";
     if (unmsg != ""){
@@ -113,17 +113,22 @@ function UserShow(name,online,unmsg) {
 
     console.log(unmsg_html);
 
+    var online_str = "离开"
+    if (online){
+      online_str = "在线"
+    }
+
     var data = '<a href="/onebyone?you_name='+name+'" class="weui-media-box weui-media-box_appmsg">'+
            '    <div class="weui-media-box__hd">'+
-           '        <img class="weui-media-box__thumb" src="https://static.oschina.net/uploads/logo/weui_DFqpP.png" alt="">'+
+           '        <img class="weui-media-box__thumb" src="'+img+'" alt="">'+
            unmsg_html+
            '    </div>'+
            '    <div class="weui-media-box__bd">'+
            '        <h4 class="weui-media-box__title">'+
-           '            '+name+' | '+online+''+
+           '            '+name+' （'+online_str+'）'+
            '            <span class="weui-media-box__title-after"></span>'+
            '        </h4>'+
-           '    <p class="weui-media-box__desc">...</p>'+
+           '    <p class="weui-media-box__desc">上线时间: '+time+'</p>'+
            '    </div>'+
            '</a>';
     return data
@@ -201,8 +206,18 @@ window.onload = function () {
                 if (name === user_list_data[i]["user_name"]){
                     continue;
                 }
-                user_div.append( UserShow( user_list_data[i]["user_name"], user_list_data[i]["online"], user_list_data[i]["unmsg"] ) );
+                user_div.append( UserShow( user_list_data[i]["user_name"], user_list_data[i]["online"],
+                   user_list_data[i]["unmsg"],  user_list_data[i]["img"], user_list_data[i]["login_time"] ) );
             }
+
+            //未读消息
+            $("#unmsg_num").empty();
+            if (obj["msg_count"] != 0){
+              
+              $("#unmsg_num").append('<span class="weui-badge"  style="position: absolute;top: -.4em;right: 1em;">'+obj["msg_count"]+'</span>')
+            }
+
+            
 
             //当前聊天室
             var room_list_data = obj["room_list"];

@@ -16,6 +16,7 @@ import (
 // 输出的用户列表
 type UserList struct {
 	Name   string
+	Img    string
 	Online bool
 }
 
@@ -28,15 +29,18 @@ func PGIndex(c *gin.Context) {
 		return
 	}
 
-	//获取一次用户列表
+	// 在redis获取用户列表
 	userList := make([]*UserList, 0)
-	for k, v := range obj.AllUser {
+	allUser := new(dao.DaoMsg).GetAllUser()
+	for k, v := range allUser {
 		online := false
-		if v.Conn != nil {
+		if utils.Str2Int(v) > 0 {
 			online = true
 		}
+		info := new(dao.DaoMsg).GetUserInfo(k)
 		userList = append(userList, &UserList{
 			Name:   k,
+			Img:    info["ing"],
 			Online: online,
 		})
 	}
@@ -98,6 +102,9 @@ func Login(c *gin.Context) {
 		Name: name,
 	}
 	obj.UserLogin(user)
+
+	//上线
+	new(dao.DaoMsg).UserToOnline(name)
 
 	c.SetCookie("user", name, 60*60*24*7, "/", "0.0.0.0/24", false, true)
 	c.Redirect(http.StatusFound, "/")
@@ -179,13 +186,20 @@ func PGOnebyone(c *gin.Context) {
 
 	log.Println("room_name = ", room_name)
 
-	// TODO  未读到已读
-	// 获取所有消息
-
-	// TODO  未读消息红点数清除
+	//未读条数清理
+	new(dao.DaoMsg).EmptyUnreadMsg(my_name, you_name)
 
 	//获取历史聊天记录
 	historyMsg := new(dao.DaoMsg).Get(room_name)
+
+	// //处理对方发的消息 未读到已读
+	// for k, v := range historyMsg {
+	// 	if strings.Index(v, fmt.Sprintf(`"name":"%s"`, my_name)) == -1 {
+	// 		v = strings.Replace(v, "未读", "已读", -1)
+	// 		log.Println(k+1, v)
+	// 	}
+	// }
+
 	historyMsgJson, err := json.Marshal(&historyMsg)
 	if err != nil {
 		log.Printf("序列号错误 err=%v\n", err)

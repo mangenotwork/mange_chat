@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/mangenotwork/mange_chat/cilent"
 	"github.com/mangenotwork/mange_chat/common/utils"
+	"github.com/mangenotwork/mange_chat/dao"
 	"github.com/mangenotwork/mange_chat/obj"
 )
 
@@ -62,12 +63,14 @@ func WSAnonymity(c *gin.Context) {
 	log.Println("name = ", name)
 
 	if name == "" {
-		n := obj.GetAnonymityRoomCount()
-		name = "匿名用户" + string(n+1)
+		name = utils.RandChar(12)
 	}
+
+	userName, _ := c.Cookie("user")
 
 	user := &obj.AnonymityClient{
 		Name: name,
+		User: userName,
 		Conn: conn,
 		Send: make(chan []byte, 256),
 	}
@@ -115,6 +118,9 @@ func WSRoom(c *gin.Context) {
 	// 用户进入聊天室
 	r := obj.GetRoom(roomName)
 	r.Into(u)
+
+	//用户上线
+	new(dao.DaoMsg).UserToOnline(u.Name)
 
 	// Allow collection of memory referenced by the caller by doing all work in
 	// new goroutines.
