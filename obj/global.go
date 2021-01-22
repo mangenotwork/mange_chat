@@ -1,6 +1,7 @@
 package obj
 
 import (
+	"log"
 	"sync"
 
 	"github.com/gorilla/websocket"
@@ -256,5 +257,9 @@ func GetOnebyoneRoom(roomName string) *Room {
 // 用户退出房间
 func UserOutOnebyoneRoom(u *UserC) {
 	r := GetOnebyoneRoom(u.RoomName)
-	r.Out(u)
+	log.Println("退出一对一聊天")
+	close(u.Send)
+	//r.Out(u)
+	delete(r.AllUser, u)
+	log.Println("AllUser = ", r.AllUser)
 }

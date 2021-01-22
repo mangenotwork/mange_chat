@@ -62,12 +62,12 @@ func (dao *DaoMsg) SaveUnreadMsg(me, you string) {
 	key := fmt.Sprintf(constname.UnreadMsgKey, me)
 
 	// 返回哈希表 key 中给定域 field 的值。
-	//log.Println("保存未读消息条数 ")
+	log.Println("保存未读消息条数 ")
 	res, err := redis.String(rc.Do("HGET", key, you))
 	if err != nil {
 		log.Println("GET error", err.Error())
 	}
-	//log.Println(res)
+	log.Println(res)
 
 	if res == "" {
 		//如果不存在
@@ -276,5 +276,89 @@ func (dao *DaoMsg) GetAllUser() (res map[string]string) {
 		return
 	}
 	//log.Println(res)
+	return
+}
+
+//   ---------------------------  群聊  ---------------------------
+
+// 新建群聊
+// 用zet 保存群聊
+func (dao *DaoMsg) NewRoom(name string) {
+	rc, err := conn.RedisConn()
+	if err != nil {
+		log.Println("未获取到redis连接")
+		return
+	}
+	defer rc.Close()
+	key := constname.RoomList
+
+	args := redis.Args{}.Add(key)
+	args = args.Add(time.Now().Unix())
+	args = args.Add(name)
+
+	//log.Println("执行redis : ", "ZADD", args)
+	_, err = rc.Do("ZADD", args...)
+	if err != nil {
+		log.Println("GET error", err.Error())
+		return
+	}
+}
+
+// 获取所有群聊房间
+func (dao *DaoMsg) GetRoomList() (res map[string]string) {
+	rc, err := conn.RedisConn()
+	if err != nil {
+		log.Println("未获取到redis连接")
+		return
+	}
+	defer rc.Close()
+	key := constname.RoomList
+
+	start := 0
+	stop := -1
+
+	//log.Println("执行redis : ", "ZREVRANGE", key, start, stop, "WITHSCORES")
+	res, err = redis.StringMap(rc.Do("ZREVRANGE", key, start, stop, "WITHSCORES"))
+	if err != nil {
+		log.Println("GET error", err.Error())
+		return
+	}
+	//log.Println(res)
+	return
+}
+
+// 保存群聊消息
+func (dao *DaoMsg) SaveRoomMsg(room, msg string) {
+	rc, err := conn.RedisConn()
+	if err != nil {
+		log.Println("未获取到redis连接")
+		return
+	}
+	defer rc.Close()
+	key := fmt.Sprintf(constname.RoomMsgKey, room)
+	_, err = rc.Do("RPUSH", key, msg)
+	if err != nil {
+		//log.Println("GET error", err.Error())
+		return
+	}
+}
+
+// 获取群聊消息
+func (dao *DaoMsg) GetRoomMsg(room string) (datas []string) {
+	datas = make([]string, 0)
+	rc, err := conn.RedisConn()
+	if err != nil {
+		log.Println("未获取到redis连接")
+		return
+	}
+	defer rc.Close()
+	key := fmt.Sprintf(constname.RoomMsgKey, room)
+	res, err := redis.Strings(rc.Do("LRANGE", key, 0, -1))
+	if err != nil {
+		fmt.Println("GET error", err.Error())
+		return
+	}
+	//fmt.Println("历史消息 = ", res)
+	datas = res
 	return
 }

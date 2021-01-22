@@ -117,6 +117,18 @@ func WSRoom(c *gin.Context) {
 
 	// 用户进入聊天室
 	r := obj.GetRoom(roomName)
+
+	if r == nil {
+		log.Println("创建房间 ")
+		// 创建房间
+		r = &obj.Room{
+			Name:    roomName,
+			AllUser: make(map[*obj.UserC]bool, 0),
+		}
+		// 登记房间
+		obj.AddRoom(r)
+	}
+	log.Println("r = ", r)
 	r.Into(u)
 
 	//用户上线
@@ -166,7 +178,19 @@ func WSOnebyone(c *gin.Context) {
 
 	// 用户进入聊天室
 	r := obj.GetOnebyoneRoom(roomName)
-	r.Into(u)
+
+	flg := true
+	for k, _ := range r.AllUser {
+		if k.Name == u.Name {
+			k.Conn = u.Conn
+			flg = false
+			break
+		}
+	}
+	if flg {
+		r.Into(u)
+	}
+
 	log.Println("room obj = ", r)
 
 	// Allow collection of memory referenced by the caller by doing all work in

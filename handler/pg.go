@@ -145,12 +145,34 @@ func PGRoom(c *gin.Context) {
 		return
 	}
 
-	room_name := c.Query("room_name")
-	log.Println("room_name = ", room_name)
+	roomName := c.Query("room_name")
+	log.Println("room_name = ", roomName)
+
+	// 群聊当前在线人数
+	r := obj.GetRoom(roomName)
+	if r == nil {
+		log.Println("创建房间 ")
+		// 创建房间
+		r = &obj.Room{
+			Name:    roomName,
+			AllUser: make(map[*obj.UserC]bool, 0),
+		}
+		// 登记房间
+		obj.AddRoom(r)
+	}
+	count := len(r.AllUser)
+
+	historyMsg := new(dao.DaoMsg).GetRoomMsg(roomName)
+	historyMsgJson, err := json.Marshal(&historyMsg)
+	if err != nil {
+		log.Printf("序列号错误 err=%v\n", err)
+	}
 
 	c.HTML(http.StatusOK, "room.html", gin.H{
-		"user_name": user,
-		"room_name": room_name,
+		"user_name":   user,
+		"room_name":   roomName,
+		"count":       count,
+		"history_msg": string(historyMsgJson),
 	})
 }
 
@@ -229,6 +251,16 @@ func CreateRoom(c *gin.Context) {
 
 	room_name := c.Query("room_name")
 	log.Println("room_name = ", room_name)
+
+	//获取所有room
+	allroom := new(dao.DaoMsg).GetRoomList()
+	for k, _ := range allroom {
+		if room_name == k {
+			c.JSON(http.StatusOK, "群聊已经存在")
+			return
+		}
+	}
+
 	// 创建房间
 	room := &obj.Room{
 		Name:    room_name,
@@ -236,7 +268,12 @@ func CreateRoom(c *gin.Context) {
 	}
 	// 登记房间
 	obj.AddRoom(room)
-	c.JSON(http.StatusOK, "ok")
 
+	new(dao.DaoMsg).NewRoom(room_name)
+
+	//广播到每个在大厅的用户
 	u.Cmd <- []byte("创建")
+
+	c.JSON(http.StatusOK, "创建成功")
+
 }

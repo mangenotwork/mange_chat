@@ -1,9 +1,9 @@
 {{template "_head.html" .}}
 
 <body ontouchstart="" >
-<div style="width: 100%;height: 48px;background-color: #efeff4;">
+<div style="width: 100%;height: 45px;background-color: #efeff4;border-bottom:1px solid #ddd">
     <a href="/"><span style="font-size: 32px;margin-left: 5%;"> < </span></a>
-    <span style="font-size: 26px; margin-left: 5%;" id="num_title" > {{.room_name}} 12人 </span>
+    <span style="font-size: 26px; margin-left: 10%;" id="num_title" > {{.room_name}} ( {{.count}}人 )</span>
 </div>
 
 
@@ -12,7 +12,7 @@
     <div class="weui-cells weui-cells_form" style="">
       <div class="weui-cell">
         <div class="weui-cell__bd">
-          <textarea class="weui-textarea" id="msg" placeholder="请输入文本" rows="3"></textarea>
+          <textarea class="weui-textarea" id="msg" placeholder="请输入文本" rows="2"></textarea>
           <div class="weui-textarea-counter"><span>0</span>/200</div>
         </div>
       </div>
@@ -26,7 +26,28 @@
 
 {{template "_js.html" .}}
 <script type="text/javascript">
+
+var history_msg = "{{.history_msg}}"
+var myname = "{{.user_name}}";
+
+function History(){
+    var history_msg_obj = JSON.parse(history_msg);
+    for (var i = 0; i < history_msg_obj.length; i++){
+        var msg_obj = JSON.parse(history_msg_obj[i]);
+        if (myname == msg_obj["name"]){
+            MyShow(msg_obj["data"], msg_obj["time"], msg_obj["head_img"]);
+        }else{
+            YouShow(msg_obj["data"], msg_obj["name"], msg_obj["time"], msg_obj["head_img"]);
+        }
+    }
+}
+
+
+
 window.onload = function () {
+
+    History();
+
     var conn;
     var msg = document.getElementById("msg");
 
@@ -52,13 +73,14 @@ window.onload = function () {
         conn.onmessage = function (evt) {
             var messages = evt.data.split('\n');
             var obj = JSON.parse(messages);
+
             $("#num_title").empty();
-            $("#num_title").append(room_name+obj["count"]+"人 ")
+            $("#num_title").append(room_name+" ( "+obj["count"]+"人 )")
 
             if (user_name == obj["name"]){
-                MyShow(obj["data"], obj["time"]);
+                MyShow(obj["data"], obj["time"], obj["head_img"]);
             }else{
-                YouShow(obj["data"], obj["name"], obj["time"]);
+                YouShow(obj["data"], obj["name"], obj["time"], obj["head_img"]);
             }
         };
     } else {

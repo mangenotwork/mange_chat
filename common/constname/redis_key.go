@@ -12,4 +12,10 @@ const (
 
 	//用户列表 一个大的zset,  alluser
 	AllUserKey = "alluser"
+
+	//群聊列表 allroom
+	RoomList = "allroom"
+
+	//保存群聊消息 room:<room name>
+	RoomMsgKey = "room:%s"
 )

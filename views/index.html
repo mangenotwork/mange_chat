@@ -135,11 +135,11 @@ function UserShow(name,online,unmsg,img,time) {
 }
 
 
-function RoomShow(room_name){
+function RoomShow(room_name, time){
     var data = '<a href="/room?room_name='+room_name+'" class="weui-media-box weui-media-box_appmsg">'+
                '      <div class="weui-media-box__bd">'+
                '          <h4 class="weui-media-box__title">'+room_name+'</h4>'+
-               '      <p class="weui-media-box__desc">12人</p>'+
+               '      <p class="weui-media-box__desc"> 创建时间: '+time+'</p>'+
                '      </div>'+
                '   </a>';
     return data
@@ -225,7 +225,7 @@ window.onload = function () {
             room_div.empty();
             for (var i = 0; i < room_list_data.length; i ++) {
 
-                room_div.append(RoomShow(room_list_data[i]["room_name"]));
+                room_div.append(RoomShow(room_list_data[i]["room_name"], room_list_data[i]["time"]));
             }
         };
     } else {
@@ -238,7 +238,7 @@ window.onload = function () {
 function CreateRoom(){
 	var room_name = $("#room_name").val();
 	if (room_name === "") {
-		alert("room name is null.")
+		alert("room name is null.");
 		return
 	}
 	$.ajax({
@@ -246,6 +246,8 @@ function CreateRoom(){
 		url : "/create/room?room_name="+room_name,
 		success : function(result) {//返回数据根据结果进行相应的处理 
 	    	console.log(result);
+        $.toast("纯文本", "text");
+        alert("aaa");
 	    } 
 	});
 }

@@ -220,9 +220,11 @@ func RoomReadPump(c *obj.UserC) {
 		room := obj.GetRoom(c.RoomName)
 		log.Println("获取所在房间 = ", room)
 
+		myInfo := new(dao.DaoMsg).GetUserInfo(c.Name)
 		// 消息内容
 		m := &Message{
 			Name:         c.Name,
+			HeadImg:      myInfo["img"],
 			Time:         time.Now().Format("2006-01-02 15:04:05"),
 			RoomManCount: room.GetManCount(),
 			Data:         string(message),
@@ -234,6 +236,8 @@ func RoomReadPump(c *obj.UserC) {
 		if err != nil {
 			log.Println("序列化失败,error=", err)
 		}
+
+		new(dao.DaoMsg).SaveRoomMsg(c.RoomName, string(data))
 
 		//广播到每个client
 		for client, _ := range room.AllUser {
@@ -297,9 +301,7 @@ func OnebyoneRoomWritePump(c *obj.UserC) {
 }
 
 func OnebyoneRoomReadPump(c *obj.UserC) {
-	defer func() {
-		obj.UserOutOnebyoneRoom(c)
-	}()
+	defer obj.UserOutOnebyoneRoom(c)
 
 	c.Conn.SetReadLimit(maxMessageSize)
 	c.Conn.SetReadDeadline(time.Now().Add(pongWait))
@@ -320,10 +322,14 @@ func OnebyoneRoomReadPump(c *obj.UserC) {
 		room := obj.GetOnebyoneRoom(c.RoomName)
 		log.Println("获取所在房间 = ", room)
 
-		mesgState := "未读"
+		mesgState := "已读"
 		roomMan := len(room.AllUser)
-		if roomMan >= 2 {
-			mesgState = "已读"
+		log.Println(" 当前人数 ", room.AllUser)
+		if roomMan < 2 {
+			mesgState = "未读"
+			//未读消息到未读表
+			//你来自我的未读 存入redis
+			new(dao.DaoMsg).SaveUnreadMsg(c.You, c.Name)
 		}
 
 		myInfo := new(dao.DaoMsg).GetUserInfo(c.Name)
@@ -347,19 +353,17 @@ func OnebyoneRoomReadPump(c *obj.UserC) {
 		log.Println("data = ", string(data))
 		new(dao.DaoMsg).Save(c.RoomName, string(data))
 
-		//未读消息到未读表
-		if mesgState == "未读" {
-			//你来自我的未读 存入redis
-			new(dao.DaoMsg).SaveUnreadMsg(c.You, c.Name)
-		}
-
 		//广播到每个client
 		for client, _ := range room.AllUser {
 
+			if client.Send == nil {
+				continue
+			}
+
 			select {
 			case client.Send <- data:
-				// default:
-				// 	obj.UserOutOnebyoneRoom(c)
+			default:
+				obj.UserOutOnebyoneRoom(c)
 			}
 		}
 
@@ -453,7 +457,7 @@ func LobbyReadPump(c *obj.User) {
 			break
 		}
 		message = bytes.TrimSpace(bytes.Replace(message, newline, space, -1))
-		log.Println("Read message = ", string(message), c.Name)
+		//log.Println("Read message = ", string(message), c.Name)
 
 		// 消息内容
 		m := &Message{
@@ -462,7 +466,7 @@ func LobbyReadPump(c *obj.User) {
 			RoomManCount: obj.GetAnonymityRoomCount(),
 			Data:         string(message),
 		}
-		log.Println("write message : ", string(message), m)
+		//log.Println("write message : ", string(message), m)
 
 		//序列化
 		data, err := json.Marshal(&m)
@@ -470,7 +474,7 @@ func LobbyReadPump(c *obj.User) {
 			log.Println("序列化失败,error=", err)
 		}
 
-		log.Println(obj.Lobby)
+		//log.Println(obj.Lobby)
 
 		//广播到每个client
 		for client, _ := range obj.Lobby {
@@ -502,11 +506,17 @@ func LobbyReadPump2(c *obj.User) {
 		case message := <-c.Cmd:
 			//获取当前房间列表
 			roomList := make([]*RoomInfo, 0)
-			for k, _ := range obj.AllRoom {
+			allroom := new(dao.DaoMsg).GetRoomList()
+			for k, v := range allroom {
 				roomList = append(roomList, &RoomInfo{
 					Name: k,
+					Time: utils.StrUnix2Date(v),
 				})
 			}
+
+			sort.Slice(roomList, func(i, j int) bool {
+				return roomList[i].Time > roomList[j].Time
+			})
 
 			// 消息内容
 			m := &LobbyMsg{
@@ -591,6 +601,7 @@ func LobbyReadPump2(c *obj.User) {
 // 输出的房间列表
 type RoomInfo struct {
 	Name string `json:"room_name"`
+	Time string `json:"time"`
 }
 
 // 大厅数据结构
