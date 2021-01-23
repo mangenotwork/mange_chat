@@ -20,6 +20,7 @@ func PGRouter() {
 	Router.GET("/create/room", handler.CreateRoom) // 创建群聊
 	Router.GET("/room", handler.PGRoom)            // 指定聊天室
 	Router.GET("/onebyone", handler.PGOnebyone)    //一对一聊天
+	Router.POST("/upload", handler.Upload)         //上传图片
 
 }
 

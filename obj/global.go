@@ -30,6 +30,9 @@ type AnonymityClient struct {
 
 	// Buffered channel of outbound messages.
 	Send chan []byte
+
+	// 发送图片
+	SendImg chan []byte
 }
 
 // 加入匿名房间
@@ -37,6 +40,19 @@ func AddAnonymityRoom(c *AnonymityClient) {
 	AnonymityRoomLock.Lock()
 	defer AnonymityRoomLock.Unlock()
 	AnonymityRoom[c] = true
+}
+
+// 获取匿名聊天连接
+func GetAnonymity(name string) *AnonymityClient {
+	for k, _ := range AnonymityRoom {
+		AnonymityRoomLock.Lock()
+		i := k.Name
+		AnonymityRoomLock.Unlock()
+		if i == name {
+			return k
+		}
+	}
+	return nil
 }
 
 // 获取匿名房间人数
@@ -139,6 +155,9 @@ type UserC struct {
 
 	// Buffered channel of outbound messages.
 	Send chan []byte
+
+	// img
+	SendIMg chan []byte
 
 	//当前所在房间 目前是但房间聊天
 	RoomName string

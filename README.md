@@ -1,12 +1,12 @@
 # mange_chat
- web socket  IM 练手项目
+ websocket  IM 练手项目
 
 # 技术选型
 - socket : github.com/gorilla/websocket
 - web : github.com/gin-gonic/gin
 - UI : https://github.com/lihongxun945/jquery-weui
-- 存储 redis : github.com/garyburd/redigo/redis
-- 存储 mongo :
+- 存储到 redis : github.com/garyburd/redigo/redis
+- 存储到 mongo :
 
 # 文档:
 - socket : https://pkg.go.dev/github.com/gorilla/websocket
@@ -23,6 +23,8 @@
 6. v0.6 20210122 : 登录，退出, 头像选择，用户存储到redis
 7. v0.7 20210122 : 用户列表(redis),未读消息提示
 8. v0.8 20210122 : 群聊房间列表(redis)， 群聊消息保存到redis 
+9. v0.9 20210123 : 发送图片
 
 # TODO:
-v0.9 发送图片
+ 发送视频， 发送语音， 发送文件， 发送表情包， 发送红包....
+

@@ -1,7 +1,7 @@
 {{template "_head.html" .}}
 
 <body ontouchstart="" >
-<div style="width: 100%;height: 45px;background-color: #efeff4;text-align: center;border-bottom:1px solid #ddd">
+<div style="width: 100%;height: 45px;background-color: #f8f8f8;text-align: center;border-bottom:1px solid #ddd">
     <a href="/" style=""><span style="font-size: 32px;float: left;margin-left: 20px;"> < </span></a>
     <span style="font-size: 25px;margin-right: 20px;" > {{.you_name}} </span>
 </div>
@@ -10,6 +10,10 @@
 <div id="show"></div>
 
 <form style="">
+    <div class="weui-uploader__input-box">
+        <input id="sendimg" class="weui-uploader__input" type="file" accept="image/*">
+    </div>
+
     <div class="weui-cells weui-cells_form" style="">
       <div class="weui-cell">
         <div class="weui-cell__bd">
@@ -32,7 +36,6 @@ var history_msg = "{{.history_msg}}"
 var myname = "{{.my_name}}";
 var youname = "{{.you_name}}";
 
-
 function History(){
     var history_msg_obj = JSON.parse(history_msg);
     for (var i = 0; i < history_msg_obj.length; i++){
@@ -45,13 +48,11 @@ function History(){
     }
 }
 
-
 window.onload = function () {
 
     History();
     var conn;
     var msg = document.getElementById("msg");
-
      $("#form").click(function (){
         if (!conn) {
             return false;
@@ -84,8 +85,47 @@ window.onload = function () {
         appendErr("<b>你当前使用的浏览器不支持即使聊天，请更新或更换浏览器.</b>");
     }
 };
-</script>
 
+$('#sendimg').change(function(evt){
+    console.log("sendimg");
+    // 如果浏览器不支持FileReader，则不处理
+    if (!window.FileReader) return;
+    var files = evt.target.files;
+    console.log(files);
+    console.log(files[0]["name"]);
+    if (files.name == ""){
+        return;
+    }
+
+    var f = event.target.files[0];
+
+    var formdata=new FormData();
+    formdata.append('file',f);
+    formdata.append("myname", myname);
+    formdata.append("youname", youname);
+    formdata.append("type","obo")
+
+    console.log(formdata);
+    $.ajax({
+        url: "/upload",
+        data: formdata,
+　　　　 type: "POST",
+        async: false,
+　　　　 cache: false,
+　　　　 contentType: false,
+　　　　 processData: false,
+        success: function (data) {
+
+            console.log(data);
+            if (data == ""){
+                alert("添加失败");
+            } 
+
+        }
+    })
+});
+
+</script>
 
 </body>
 </html>

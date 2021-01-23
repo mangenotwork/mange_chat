@@ -145,6 +145,37 @@ func AnonymityReadPump(c *obj.AnonymityClient) {
 	}
 }
 
+func AnonymityReadPump2(c *obj.AnonymityClient) {
+	for {
+		select {
+		case message := <-c.SendImg:
+			// 消息内容
+			m := &Message{
+				Name:         c.Name,
+				Time:         time.Now().Format("2006-01-02 15:04:05"),
+				RoomManCount: obj.GetAnonymityRoomCount(),
+				Data:         string(message),
+			}
+			log.Println("write message : ", string(message), m)
+
+			//序列化
+			data, err := json.Marshal(&m)
+			if err != nil {
+				log.Println("序列化失败,error=", err)
+			}
+
+			//广播到每个client
+			for client, _ := range obj.AnonymityRoom {
+				select {
+				case client.Send <- data:
+				default:
+					obj.OutAnonymityRoom(client)
+				}
+			}
+		}
+	}
+}
+
 // -----------------------------------------------------------
 //						指定聊天室
 // -----------------------------------------------------------
@@ -245,6 +276,46 @@ func RoomReadPump(c *obj.UserC) {
 			case client.Send <- data:
 			default:
 				obj.UserOutRoom(c)
+			}
+		}
+	}
+}
+
+func RoomReadPump2(c *obj.UserC) {
+	for {
+		select {
+		case message := <-c.SendIMg:
+			//获取所在房间
+			log.Println("RoomName = ", c.RoomName)
+			room := obj.GetRoom(c.RoomName)
+			log.Println("获取所在房间 = ", room)
+
+			myInfo := new(dao.DaoMsg).GetUserInfo(c.Name)
+			// 消息内容
+			m := &Message{
+				Name:         c.Name,
+				HeadImg:      myInfo["img"],
+				Time:         time.Now().Format("2006-01-02 15:04:05"),
+				RoomManCount: room.GetManCount(),
+				Data:         string(message),
+			}
+			log.Println("write message : ", string(message), m)
+
+			//序列化
+			data, err := json.Marshal(&m)
+			if err != nil {
+				log.Println("序列化失败,error=", err)
+			}
+
+			new(dao.DaoMsg).SaveRoomMsg(c.RoomName, string(data))
+
+			//广播到每个client
+			for client, _ := range room.AllUser {
+				select {
+				case client.Send <- data:
+				default:
+					obj.UserOutRoom(c)
+				}
 			}
 		}
 	}
@@ -377,6 +448,73 @@ func OnebyoneRoomReadPump(c *obj.UserC) {
 			}
 		}
 
+	}
+}
+
+func OnebyoneRoomReadPump2(c *obj.UserC) {
+	for {
+		select {
+		case message := <-c.SendIMg:
+
+			room := obj.GetOnebyoneRoom(c.RoomName)
+			log.Println("获取所在房间 = ", room)
+
+			mesgState := "已读"
+			roomMan := len(room.AllUser)
+			log.Println(" 当前人数 ", room.AllUser)
+			if roomMan < 2 {
+				mesgState = "未读"
+				//未读消息到未读表
+				//你来自我的未读 存入redis
+				new(dao.DaoMsg).SaveUnreadMsg(c.You, c.Name)
+			}
+
+			myInfo := new(dao.DaoMsg).GetUserInfo(c.Name)
+			// 消息内容
+			m := &Message{
+				Name:         c.Name,
+				HeadImg:      myInfo["img"],
+				Time:         time.Now().Format("2006-01-02 15:04:05"),
+				RoomManCount: room.GetManCount(),
+				Data:         string(message),
+				//MsgState:     mesgState,
+			}
+			log.Println("write message : ", string(message), m)
+
+			//序列化
+			data, err := json.Marshal(&m)
+			if err != nil {
+				log.Println("序列化失败,error=", err)
+			}
+
+			log.Println("data = ", string(data))
+			new(dao.DaoMsg).Save(c.RoomName, string(data))
+
+			//广播到每个client
+			for client, _ := range room.AllUser {
+
+				if client.Send == nil {
+					continue
+				}
+
+				select {
+				case client.Send <- data:
+				default:
+					obj.UserOutOnebyoneRoom(c)
+				}
+			}
+
+			//对方没在聊天房间，查看是否在大厅
+			if mesgState == "未读" {
+				y := obj.GetUser(c.You)
+				if y != nil {
+					select {
+					case y.Cmd <- []byte("未读消息"):
+					}
+				}
+			}
+
+		}
 	}
 }
 

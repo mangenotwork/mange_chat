@@ -2,9 +2,11 @@ package handler
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"sort"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -276,4 +278,78 @@ func CreateRoom(c *gin.Context) {
 
 	c.JSON(http.StatusOK, "创建成功")
 
+}
+
+//	上传图片
+func Upload(c *gin.Context) {
+	file, err := c.FormFile("file")
+	log.Println(file.Filename, err)
+	//log.Println(file, err)
+
+	myname := c.PostForm("myname")
+	log.Println("myname = ", myname)
+
+	youname := c.PostForm("youname")
+	log.Println("youname = ", youname)
+
+	roomname := c.PostForm("roomname")
+	log.Println("roomname = ", roomname)
+
+	// 聊天类型
+	sendType := c.PostForm("type")
+
+	ext := strings.Split(file.Filename, ".")
+	extStr := ext[len(ext)-1]
+	newFileName := fmt.Sprintf("%d.%s", time.Now().UnixNano(), extStr)
+
+	// 上传文件到指定的路径
+	err = c.SaveUploadedFile(file, "./img/"+newFileName)
+	log.Println(err)
+	if err != nil {
+		c.JSON(http.StatusOK, "")
+	}
+
+	newFileNameUrl := "/img/" + newFileName
+	imgShow := fmt.Sprintf(`<img src="%s" alt="" style="width: 250px;box-shadow:2px 2px 3px 3px rgba(0,0,0,.5);margin: 10px;">`, newFileNameUrl)
+
+	switch sendType {
+
+	// 一对一聊天
+	case "obo":
+		//获取房间
+		//名称进行排序生成key
+		a := sort.StringSlice{myname, youname}
+		sort.Sort(a)
+		log.Println("名称进行排序生成key = ", a)
+		roomName := a[0] + ":" + a[1]
+		r := obj.GetOnebyoneRoom(roomName)
+		log.Println("r = ", r)
+		for k, _ := range r.AllUser {
+			if k.Name == myname {
+				log.Println("Send obo")
+				k.SendIMg <- []byte(imgShow)
+				break
+			}
+		}
+
+	//群聊
+	case "room":
+		r := obj.GetRoom(roomname)
+		for k, _ := range r.AllUser {
+			if k.Name == myname {
+				log.Println("Send room : ", imgShow)
+				k.SendIMg <- []byte(imgShow)
+				break
+			}
+		}
+
+	//匿名聊天
+	case "anonymity":
+		c := obj.GetAnonymity(myname)
+		log.Println("Send anonymity : ", imgShow)
+		c.SendImg <- []byte(imgShow)
+
+	}
+
+	c.JSON(http.StatusOK, newFileNameUrl)
 }

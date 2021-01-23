@@ -1,9 +1,7 @@
 {{template "_head.html" .}}
 
 <body ontouchstart="">
-
     <div class="weui-tab">
-
         <!-- 容器 -->
         <div class="weui-tab">
               <div class="weui-tab__bd">
@@ -25,28 +23,9 @@
                     </div>
                     <div class="weui-panel__bd" id="userlist"></div>
                     
-
                 </div>
                 <div id="tab2" class="weui-tab__bd-item">
-
-                  <!-- <div class="weui-cells weui-cells_form">
-                    <div class="weui-cell">
-                      <div class="weui-cell__hd"><label class="weui-label">群聊房间名</label></div>
-                        <div class="weui-cell__bd">
-                          <input class="weui-input"  id="room_name" type="text" placeholder="输入一个名称">
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="weui-flex" style="margin-top:21px;">
-                      <div class="weui-flex__item" >
-                          <a id="form" class="weui-btn weui-btn_primary" onclick="CreateRoom()" style="height: 38px;">创建群聊房间</a>
-                      </div>
-                  </div> -->
-
                   <a href="javascript:;" id="show-prompt" class="weui-btn weui-btn_default">点击创建群聊房间</a>
-                  <!-- <input type="text" id="room_name"> <button onclick="CreateRoom()">创建群聊房间</button> -->
-
                   <div class="weui-cells__title">当前聊天室</div>
                   <div id="roomlist"> </div>
 
@@ -102,8 +81,6 @@
 
 <script type="text/javascript">
 
-
-
 function UserShow(name,online,unmsg,img,time) {
 
     var unmsg_html = "";
@@ -134,7 +111,6 @@ function UserShow(name,online,unmsg,img,time) {
     return data
 }
 
-
 function RoomShow(room_name, time){
     var data = '<a href="/room?room_name='+room_name+'" class="weui-media-box weui-media-box_appmsg">'+
                '      <div class="weui-media-box__bd">'+
@@ -144,7 +120,6 @@ function RoomShow(room_name, time){
                '   </a>';
     return data
 }
-
 
 window.onload = function () {
     var conn;
@@ -251,10 +226,6 @@ function CreateRoom(){
 	    } 
 	});
 }
-
-    
-
-
 </script>
 </body>
 </html>

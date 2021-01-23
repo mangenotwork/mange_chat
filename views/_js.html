@@ -1,21 +1,19 @@
 <script type="text/javascript">
-
 var show = $("#show");
 
 function appendShow(item) {
-        console.log(show[0].scrollHeight);
-        var h = show[0].scrollHeight+500;
-        show.scrollTop(h);
-        show.append(item);
+    show.append(item);
+    console.log(show[0].scrollHeight);
+    var h = show[0].scrollHeight;
+    show.scrollTop(h);
+        
 }   
 
-
 function appendErr(item) {
+    show.append(item);
     console.log(show[0].scrollHeight);
     show.scrollTop(show[0].scrollHeight);
-    show.append(item);
 }
-
 
 function MyShow(content,time,img){
     var data = '<a class="weui-cell weui-cell_access" href="javascript:;" style="margin-top: 25px;margin-bottom: 2px;">'+
@@ -29,7 +27,6 @@ function MyShow(content,time,img){
         '</a>';
     appendShow(data)
 }
-
 
 function YouShow(content, name, time, img){
     var data = '<a class="weui-cell weui-cell_access" href="javascript:;" style="margin-top: 25px;margin-bottom: 25px;">'+
@@ -46,10 +43,6 @@ function YouShow(content, name, time, img){
 }
 
 function MyShow1vs1(content, time, img){
-    // var isred = ""
-    // if (red == "未读"){
-    //     isred = '<span style="color: red">未读</span>'
-    // }
     var data = '<a class="weui-cell weui-cell_access" href="javascript:;" style="margin-top: 25px;margin-bottom: 25px;">'+
         '<div class="weui-cell__bd weui-cell_primary" style="margin-left: 10px;">'+
         '    <p style="float: right;margin-right: 10px;">'+content+'</p>'+
@@ -61,7 +54,6 @@ function MyShow1vs1(content, time, img){
         '</a>';
     appendShow(data)
 }
-
 
 function YouShow1vs1(content, time, img){
     var data = '<a class="weui-cell weui-cell_access" href="javascript:;" style="margin-top: 25px;margin-bottom: 25px;">'+
@@ -75,5 +67,4 @@ function YouShow1vs1(content, time, img){
         '</a>';
     appendShow(data)
 }
-
 </script>

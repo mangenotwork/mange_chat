@@ -20,6 +20,7 @@ func Routers() *gin.Engine {
 	// Router.Static("/static", "static")
 	// Router.Static("/install/static", "static")
 	Router.StaticFS("/static", http.Dir("./static"))
+	Router.StaticFS("/img", http.Dir("./img"))
 
 	//模板
 	Router.LoadHTMLGlob("views/*")

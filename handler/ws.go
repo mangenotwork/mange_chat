@@ -69,10 +69,11 @@ func WSAnonymity(c *gin.Context) {
 	userName, _ := c.Cookie("user")
 
 	user := &obj.AnonymityClient{
-		Name: name,
-		User: userName,
-		Conn: conn,
-		Send: make(chan []byte, 256),
+		Name:    name,
+		User:    userName,
+		Conn:    conn,
+		Send:    make(chan []byte, 256),
+		SendImg: make(chan []byte, 256),
 	}
 	obj.AddAnonymityRoom(user)
 
@@ -80,7 +81,7 @@ func WSAnonymity(c *gin.Context) {
 	// new goroutines.
 	go cilent.AnonymityWritePump(user)
 	go cilent.AnonymityReadPump(user)
-
+	go cilent.AnonymityReadPump2(user)
 }
 
 //指定聊天室  websocket 连接
@@ -113,6 +114,7 @@ func WSRoom(c *gin.Context) {
 
 	u.Conn = conn
 	u.Send = make(chan []byte, 256)
+	u.SendIMg = make(chan []byte, 256)
 	u.RoomName = roomName
 
 	// 用户进入聊天室
@@ -138,6 +140,7 @@ func WSRoom(c *gin.Context) {
 	// new goroutines.
 	go cilent.RoomWritePump(u)
 	go cilent.RoomReadPump(u)
+	go cilent.RoomReadPump2(u)
 }
 
 //一对一聊天
@@ -174,6 +177,7 @@ func WSOnebyone(c *gin.Context) {
 
 	u.Conn = conn
 	u.Send = make(chan []byte, 256)
+	u.SendIMg = make(chan []byte, 256)
 	u.RoomName = roomName
 
 	// 用户进入聊天室
@@ -190,11 +194,9 @@ func WSOnebyone(c *gin.Context) {
 	if flg {
 		r.Into(u)
 	}
-
 	log.Println("room obj = ", r)
 
-	// Allow collection of memory referenced by the caller by doing all work in
-	// new goroutines.
 	go cilent.OnebyoneRoomWritePump(u)
 	go cilent.OnebyoneRoomReadPump(u)
+	go cilent.OnebyoneRoomReadPump2(u)
 }
